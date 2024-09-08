@@ -1,2 +1,3 @@
-# Crescent
-The opensource secured messenger.
+# crescent
+
+A new Flutter project.

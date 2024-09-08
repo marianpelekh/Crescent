@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="18.976208mm"
+   height="25.577768mm"
+   viewBox="0 0 18.976208 25.577768"
+   version="1.1"
+   id="svg1"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1" />
+  <g
+     id="layer3"
+     transform="translate(-84.853457,-93.126615)">
+    <rect
+       style="fill:#ffffff;fill-opacity:0.943408;stroke:none;stroke-width:6.13407;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect11"
+       width="3.3861251"
+       height="6.6745114"
+       x="92.402405"
+       y="112.02987"
+       ry="0.54935062" />
+    <path
+       id="path11"
+       style="fill:#ffffff;fill-opacity:0.943408;stroke:none;stroke-width:7;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       d="m 86.85258,104.44996 c -0.532718,-5e-5 -1.063384,0.17864 -1.067119,0.5364 -0.02195,2.10195 0.785179,4.03703 2.115117,5.50405 l 1.656229,-1.44849 c -0.970322,-1.08874 -1.572981,-2.51819 -1.624707,-4.05556 -0.01203,-0.35757 -0.546802,-0.53636 -1.07952,-0.5364 z m 14.42651,0 c -0.53468,4e-5 -1.07329,0.17882 -1.08521,0.5364 -0.11717,3.5171 -2.756831,6.10253 -6.131921,6.10298 -1.087237,-6.4e-4 -2.097566,-0.29377 -2.972945,-0.79891 l -1.705839,1.49189 c 1.335764,0.9138 2.949713,1.45266 4.678784,1.45315 4.560573,-1.4e-4 8.228781,-3.74121 8.278561,-8.24911 0.004,-0.35775 -0.52675,-0.53645 -1.06143,-0.5364 z" />
+    <path
+       id="rect12"
+       style="fill:#ffffff;fill-opacity:0.943408;stroke:none;stroke-width:7.40556;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       d="m 93.620642,93.126615 c -2.409214,0 -4.349088,1.939359 -4.349088,4.348572 v 7.790223 c 0,1.16009 0.450656,2.21078 1.185974,2.98896 l 8.548832,-7.47499 v -3.304193 c 0,-2.409213 -1.939875,-4.348572 -4.349089,-4.348572 z m 5.385718,10.240715 -6.854879,5.99395 c 0.458529,0.16355 0.953082,0.25322 1.469161,0.25322 h 1.036629 c 2.409214,0 4.349089,-1.93988 4.349089,-4.34909 z" />
+    <rect
+       style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.3;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.96027"
+       id="rect13"
+       width="24.531454"
+       height="1.4579761"
+       x="-11.111177"
+       y="141.27081"
+       ry="0.54935062"
+       transform="rotate(-41.167107)" />
+  </g>
+</svg>
