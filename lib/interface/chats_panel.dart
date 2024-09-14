@@ -107,28 +107,31 @@ class ChatTile extends StatelessWidget {
   const ChatTile({super.key, required this.name, required this.message});
 
   @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final double availableWidth =
-            constraints.maxWidth - 64; // Мінус ширину аватарки та відступи
-        return ListTile(
-          leading: CircleAvatar(
-            backgroundColor: textColorH,
-            child: Text(name[0]),
-          ),
-          title: availableWidth > 80
-              ? Text(name, style: const TextStyle(color: textColorH))
-              : null,
-          subtitle: availableWidth > 80
-              ? Text(
-                  message,
-                  style: const TextStyle(color: textColorP),
-                  overflow: TextOverflow.ellipsis,
-                )
-              : null,
-        );
-      },
-    );
-  }
+Widget build(BuildContext context) {
+  return LayoutBuilder(
+    builder: (context, constraints) {
+      final double availableWidth = constraints.maxWidth - 64; // Мінус ширину аватарки та відступи
+      return ListTile(
+        leading: CircleAvatar(
+          backgroundColor: textColorH,
+          child: Text(name[0]),
+        ),
+        title: availableWidth > 80
+            ? Text(name, style: const TextStyle(color: textColorH))
+            : null,
+        subtitle: availableWidth > 80
+            ? Text(
+                message,
+                style: const TextStyle(color: textColorP),
+                overflow: TextOverflow.ellipsis,
+              )
+            : null,
+        onTap: () {
+          // Дії при натисканні
+        },
+      );
+    },
+  );
+}
+
 }

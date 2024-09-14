@@ -1,47 +1,48 @@
-import 'dart:io';
+import 'dart:convert';
 import 'package:shelf/shelf.dart';
-import 'package:shelf/shelf_io.dart' as io;
-import 'package:shelf_router/shelf_router.dart';
 import 'package:shelf_plus/shelf_plus.dart';
+import 'package:shelf_web_socket/shelf_web_socket.dart';
+import '../database/connect_db.dart';
 
-void runShelfServer() async {
-  final app = Router().plus;
+class MessageServer {
+  final DatabaseService databaseService;
 
-  // HTML-based web client
-  app.get('/', () => File('public/html_client.html'));
+  MessageServer(this.databaseService);
 
-  // Track connected clients
-  final users = <WebSocketSession>[];
+  Handler get handler {
+    final router = Router();
 
-  // Web socket route
-  app.get(
-    '/ws',
-    () => WebSocketSession(
-      onOpen: (ws) {
-        // Join chat
-        users.add(ws);
-        users
-            .where((user) => user != ws)
-            .forEach((user) => user.send('A new user joined the chat.'));
-      },
-      onClose: (ws) {
-        // Leave chat
-        users.remove(ws);
-        for (var user in users) {
-          user.send('A user has left.');
-        }
-      },
-      onMessage: (ws, dynamic data) {
-        // Deliver messages to all users
-        for (var user in users) {
-          user.send(data);
-        }
-      },
-    ),
-  );
+    // Маршрут для WebSocket з'єднання
+    router.get('/ws', (Request request) {
+      return shelfWebSocketHandler((webSocket) async {
+        webSocket.listen((message) async {
+          try {
+            final data = jsonDecode(message) as Map<String, dynamic>;
+            final sender = data['sender'] as String?;
+            final receiver = data['receiver'] as String?;
+            final text = data['message'] as String?;
 
-  // Start server
-  final handler = const Pipeline().addHandler(app);
-  final server = await io.serve(handler, 'localhost', 8080);
-  print('Server listening on http://localhost:8080');
+            if (sender != null && receiver != null && text != null) {
+              await databaseService.sendMessage(sender, receiver, text);
+              // Відправляємо повідомлення назад всім підключеним клієнтам
+              webSocket.add(jsonEncode({
+                'sender': sender,
+                'receiver': receiver,
+                'message': text,
+                'timestamp': DateTime.now().toIso8601String()
+              }));
+            } else {
+              webSocket.add(jsonEncode({'error': 'Invalid input'}));
+            }
+          } catch (e) {
+            webSocket.add(jsonEncode({'error': 'Error processing message'}));
+          }
+        });
+      })(request);
+    });
+
+    return router.call;
+  }
+  
+  shelfWebSocketHandler(Future<Null> Function(dynamic webSocket) param0) {}
 }

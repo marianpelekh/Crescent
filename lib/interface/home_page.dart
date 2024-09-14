@@ -3,7 +3,7 @@ part of '../main.dart';
 class HomePage extends StatelessWidget {
   final double adjustedFontSize;
 
-  const HomePage({Key? key, required this.adjustedFontSize}) : super(key: key);
+  const HomePage({super.key, required this.adjustedFontSize});
 
   @override
   Widget build(BuildContext context) {

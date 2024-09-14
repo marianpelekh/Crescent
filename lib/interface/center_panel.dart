@@ -3,7 +3,7 @@ part of '../main.dart';
 class CenterPanel extends StatelessWidget {
   final String homepage;
 
-  const CenterPanel({Key? key, required this.homepage}) : super(key: key);
+  const CenterPanel({super.key, required this.homepage});
 
   @override
   Widget build(BuildContext context) {
@@ -35,8 +35,8 @@ class CenterPanel extends StatelessWidget {
                 bottomRight: Radius.circular(10),
               ),
               child: homepage == "home"
-                  ? const HomePage(
-                      adjustedFontSize: 26.0) // Викликає компонент для home
+                  ? HomePage(
+                      adjustedFontSize: adjustedFontSize) // Викликає компонент для home
                   : const ChatPage(), // Викликає компонент для чату
             ),
           );

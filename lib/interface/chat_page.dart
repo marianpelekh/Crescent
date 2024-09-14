@@ -1,44 +1,51 @@
 part of '../main.dart';
 
-class ChatPage extends StatelessWidget {
-  const ChatPage({Key? key}) : super(key: key);
+
+class ChatPage extends StatefulWidget {
+  const ChatPage({super.key});
+
+  @override
+  _ChatPageState createState() => _ChatPageState();
+}
+
+class _ChatPageState extends State<ChatPage> {
+  final _channel = WebSocketChannel.connect(Uri.parse('ws://localhost:8080/ws'));
+  final _messageController = TextEditingController();
+  final List<String> _messages = [];
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         Expanded(
-          child: Container(
-            padding: const EdgeInsets.all(8.0),
-            child: ListView.builder(
-              // Розміщення повідомлень тут
-              itemCount: 10, // Змініть на вашу кількість повідомлень
-              itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text('Message $index'), // Змініть на текст повідомлення
-                );
-              },
-            ),
+          child: ListView.builder(
+            itemCount: _messages.length,
+            itemBuilder: (context, index) {
+              return ListTile(
+                title: Text(_messages[index]),
+              );
+            },
           ),
         ),
         Container(
           height: 50,
-          decoration: const BoxDecoration(
-            color: secondMain,
-            borderRadius: BorderRadius.only(
+          decoration: BoxDecoration(
+            color: Colors.grey[200],
+            borderRadius: const BorderRadius.only(
               bottomLeft: Radius.circular(10),
               bottomRight: Radius.circular(10),
             ),
           ),
-          child: const Row(
+          child: Row(
             children: [
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
                   child: TextField(
-                    decoration: InputDecoration(
+                    controller: _messageController,
+                    decoration: const InputDecoration(
                       filled: true,
-                      fillColor: secondMain,
+                      fillColor: Colors.white,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.only(
                           bottomLeft: Radius.circular(10),
@@ -47,26 +54,42 @@ class ChatPage extends StatelessWidget {
                         borderSide: BorderSide.none,
                       ),
                       hintText: 'Write a message...',
-                      hintStyle: TextStyle(
-                        fontSize: 18,
-                        color: textColorS,
-                      ),
-                    ),
-                    style: TextStyle(
-                      fontSize: 20,
-                      color: textColorH,
                     ),
                   ),
                 ),
               ),
               IconButton(
-                onPressed: runShelfServer,
-                icon: Icon(Icons.send),
+                icon: const Icon(Icons.send),
+                onPressed: _sendMessage,
               ),
             ],
           ),
         ),
       ],
     );
+  }
+
+  void _sendMessage() {
+    final message = _messageController.text;
+    if (message.isNotEmpty) {
+      _channel.sink.add(message);
+      _messageController.clear();
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _channel.stream.listen((message) {
+      setState(() {
+        _messages.add(message);
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _channel.sink.close();
+    super.dispose();
   }
 }

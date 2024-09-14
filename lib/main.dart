@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:flutter_inner_shadow/flutter_inner_shadow.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'classes/message.dart';
+import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http; // Для роботи з HTTP-запитами
+
 import 'server/server.dart';
 
 part 'interface/chats_panel.dart';
@@ -15,7 +23,6 @@ part 'constants.dart';
 
 void main() {
   runApp(const CrescentApp());
-  runShelfServer();
 }
 
 class CrescentApp extends StatelessWidget {
@@ -57,7 +64,7 @@ class CrescentApp extends StatelessWidget {
               foregroundColor: Color.fromARGB(255, 232, 232, 232),
             ),
           ),
-          home: MainPage(title: 'Crescent'),
+          home: const MainPage(title: 'Crescent'),
         );
       },
     );
@@ -67,7 +74,7 @@ class CrescentApp extends StatelessWidget {
 class MainPage extends StatefulWidget {
   final String title;
 
-  MainPage({super.key, required this.title});
+  const MainPage({super.key, required this.title});
 
   @override
   _MainPageState createState() => _MainPageState();
@@ -87,7 +94,7 @@ class _MainPageState extends State<MainPage> {
     return Scaffold(
         backgroundColor: backgroundColor,
         appBar: PreferredSize(
-          preferredSize: Size.fromHeight(kToolbarHeight),
+          preferredSize: const Size.fromHeight(kToolbarHeight),
           child: Container(
             child: AppBar(
               elevation: 0,
@@ -111,7 +118,7 @@ class _MainPageState extends State<MainPage> {
                       SizedBox(width: 10),
                       CircleAvatar(
                         backgroundImage: AssetImage(
-                            '/home/CatTheBread/Projects/Code/Crescent/crescent/assets/user_avatar.png'),
+                            '/home/CatTheBread/Projects/Code/Crescent/crescent/assets/avatar.png'),
                         radius: 20,
                       ),
                     ],
@@ -122,9 +129,9 @@ class _MainPageState extends State<MainPage> {
           ),
         ),
         body: Row(children: [
-          ChatsPanel(),
+          const ChatsPanel(),
           const CenterPanel(
-            homepage: "home",
+            homepage: "chat",
           ),
           RightSidebar(
             isRightSidebarVisible: true,
