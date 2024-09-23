@@ -1,6 +1,5 @@
 part of '../main.dart';
 
-
 class ChatPage extends StatefulWidget {
   const ChatPage({super.key});
 
@@ -9,7 +8,8 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage> {
-  final _channel = WebSocketChannel.connect(Uri.parse('ws://localhost:8080/ws'));
+  final _channel =
+      WebSocketChannel.connect(Uri.parse('ws://localhost:8080/ws'));
   final _messageController = TextEditingController();
   final List<String> _messages = [];
 
@@ -29,9 +29,9 @@ class _ChatPageState extends State<ChatPage> {
         ),
         Container(
           height: 50,
-          decoration: BoxDecoration(
-            color: Colors.grey[200],
-            borderRadius: const BorderRadius.only(
+          decoration: const BoxDecoration(
+            color: secondMain,
+            borderRadius: BorderRadius.only(
               bottomLeft: Radius.circular(10),
               bottomRight: Radius.circular(10),
             ),
@@ -45,7 +45,7 @@ class _ChatPageState extends State<ChatPage> {
                     controller: _messageController,
                     decoration: const InputDecoration(
                       filled: true,
-                      fillColor: Colors.white,
+                      fillColor: secondMain,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.only(
                           bottomLeft: Radius.circular(10),
@@ -54,6 +54,9 @@ class _ChatPageState extends State<ChatPage> {
                         borderSide: BorderSide.none,
                       ),
                       hintText: 'Write a message...',
+                    ),
+                    style: const TextStyle(
+                      color: textColorH, // Колір тексту
                     ),
                   ),
                 ),
