@@ -13,7 +13,7 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   bool isRightSidebarVisible = true;
 
-  void CloseRightSidebar() {
+  void closeRightSidebar() {
     setState(() {
       isRightSidebarVisible = false;
     });
@@ -22,15 +22,25 @@ class _MainPageState extends State<MainPage> {
   Future<void> _logout() async {
     final prefs = await SharedPreferences.getInstance();
 
-    // Очищення даних про авторизацію
+
+//Дописати логіку видаення токена з пристрою користувача
+    // late WebSocketChannel _channel;
+    // _channel = IOWebSocketChannel.connect(ipAddress);
+    // final logout_mess = jsonEncode({
+    //   'type': 'auth',
+    //   'userId': username,
+    //   'sessionId': sessionId
+    // });
     await prefs.remove('loggedIn');
     await prefs.remove('username');
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const AuthPage(),
-      ),
-    );
+    if (mounted) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const AuthPage(),
+        ),
+      );
+    }
   }
 
   @override
@@ -39,49 +49,48 @@ class _MainPageState extends State<MainPage> {
         backgroundColor: backgroundColor,
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(kToolbarHeight),
-          child: Container(
-            child: AppBar(
-              elevation: 0,
-              backgroundColor: secondMain,
-              title: SvgPicture.asset(
-                'assets/CrescentLongLogo.svg',
-                height: 40,
-              ),
-              actions: [
-                Padding(
-                  padding: const EdgeInsets.only(right: 16.0),
-                  child: Row(
-                    children: [
-                      Text(
-                        widget.username,
-                        style: const TextStyle(
-                          fontSize: 20,
-                          color: textColorH,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      ElevatedButton(
-                        onPressed: _logout,
-                        style: ElevatedButton.styleFrom(
-                          padding:
-                              EdgeInsets.zero, backgroundColor: Colors.transparent, // Забрати внутрішні відступи
-                          minimumSize:
-                              Size(40, 40), // Задати мінімальні розміри кнопки
-                          shape: CircleBorder(), // Зробити фон кнопки прозорим
-                          elevation: 0, // Без тіні
-                        ),
-                        child: CircleAvatar(
-                          backgroundImage: AssetImage(
-                            '/home/CatTheBread/Projects/Code/Crescent/crescent/assets/avatar.png',
-                          ),
-                          radius: 20, // Розмір аватара
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+          child: AppBar(
+            elevation: 0,
+            backgroundColor: secondMain,
+            title: SvgPicture.asset(
+              'assets/CrescentLongLogo.svg',
+              height: 40,
             ),
+            actions: [
+              Padding(
+                padding: const EdgeInsets.only(right: 16.0),
+                child: Row(
+                  children: [
+                    Text(
+                      widget.username,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        color: textColorH,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    ElevatedButton(
+                      onPressed: _logout,
+                      style: ElevatedButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                        backgroundColor:
+                            Colors.transparent, // Забрати внутрішні відступи
+                        minimumSize:
+                            const Size(40, 40), // Задати мінімальні розміри кнопки
+                        shape: const CircleBorder(), // Зробити фон кнопки прозорим
+                        elevation: 0, // Без тіні
+                      ),
+                      child: const CircleAvatar(
+                        backgroundImage: AssetImage(
+                          '/home/CatTheBread/Projects/Code/Crescent/crescent/assets/avatar.png',
+                        ),
+                        radius: 20, // Розмір аватара
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
         body: Row(children: [
@@ -91,7 +100,7 @@ class _MainPageState extends State<MainPage> {
           ),
           RightSidebar(
             isRightSidebarVisible: false,
-            closeSidebar: CloseRightSidebar,
+            closeSidebar: closeRightSidebar,
           )
         ]));
   }

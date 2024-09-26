@@ -8,8 +8,7 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage> {
-  final _channel =
-      WebSocketChannel.connect(Uri.parse('ws://localhost:8080/ws'));
+  final _channel = WebSocketChannel.connect(Uri.parse(ipAddress));
   final _messageController = TextEditingController();
   final List<String> _messages = [];
 
@@ -22,7 +21,15 @@ class _ChatPageState extends State<ChatPage> {
             itemCount: _messages.length,
             itemBuilder: (context, index) {
               return ListTile(
-                title: Text(_messages[index]),
+                title: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                      color: thirdMain, borderRadius: BorderRadius.circular(5)),
+                  child: Text(  
+                    _messages[index],
+                    style: const TextStyle(color: textColorH), // Колір тексту
+                  ),
+                ),
               );
             },
           ),
@@ -72,9 +79,20 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  void _sendMessage() {
-    final message = _messageController.text;
-    if (message.isNotEmpty) {
+  Future<void> _sendMessage() async {
+    final content = _messageController.text;
+    if (content.isNotEmpty) {
+      final prefs = await SharedPreferences.getInstance();
+      int? userId = prefs.getInt('userId');
+      if (kDebugMode) {
+        print(userId);
+      }
+      final message = jsonEncode({
+        'type': 'message',
+        'sender': userId,
+        'receiver': 'server',
+        'content': content
+      });
       _channel.sink.add(message);
       _messageController.clear();
     }

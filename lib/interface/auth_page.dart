@@ -21,7 +21,7 @@ class _AuthPageState extends State<AuthPage> {
   @override
   void initState() {
     super.initState();
-    _channel = IOWebSocketChannel.connect('ws://localhost:8081/ws');
+    _channel = IOWebSocketChannel.connect(ipAddress);
   }
 
   Future<void> authorize() async {
@@ -33,26 +33,41 @@ class _AuthPageState extends State<AuthPage> {
       'username': username,
       'password': password,
     });
-
     _channel.sink.add(message);
-
     _channel.stream.listen((response) async {
       final data = jsonDecode(response);
-      if (data['type'] == 'auth') {
+      print(data);
+      
+      if (data['type'] != null && data['type'] == 'auth') {
         if (data['status'] == 'success') {
+          print("succesful login");
           final prefs = await SharedPreferences.getInstance();
           await prefs.setBool('loggedIn', true);
           await prefs.setString('username', username);
+          await prefs.setInt('userId', data['userid']);
 
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => MainPage(title: 'Crescent', username: username),
-            ),
-          );
+          if (mounted) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => MainPage(title: 'Crescent', username: username),
+              ),
+            );
+          }
+
         } else {
+          print("login failed");
+          if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Invalid username or password')),
+          );
+          }
+        }
+      }
+      else if (data['type'] != null && data['type'] == 'message'){
+        if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Received message: ' + data['content'])),
           );
         }
       }
@@ -72,7 +87,6 @@ class _AuthPageState extends State<AuthPage> {
 
     return Scaffold(
       backgroundColor: backgroundColor,
-      appBar: AppBar(title: const Text('Login')),
       body: Center(
         child: Container(
           width: screenWidth * 0.75,

@@ -1,4 +1,8 @@
+import 'dart:convert';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:web_socket_channel/io.dart';
 import 'dart:math';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -6,16 +10,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 import './interface/auth_page.dart';
 
 part './interface/main_page.dart';
-
-
 part 'interface/chats_panel.dart';
 part 'interface/rooms_panel.dart';
 part 'interface/center_panel.dart';
-
 part './interface/home_page.dart';
 part './interface/chat_page.dart';
-
 part 'constants.dart';
+
 void main() {
   runApp(const CrescentApp());
 }
@@ -94,3 +95,30 @@ class CrescentApp extends StatelessWidget {
     return fontSize.clamp(minFontSize, maxFontSize);
   }
 }
+
+class WebSocketService {
+  late WebSocketChannel channel;
+
+  WebSocketService(String url) {
+    channel = WebSocketChannel.connect(Uri.parse(url));
+    channel.stream.listen((message) {
+      // Логіка обробки отриманих повідомлень
+      print("Отримане повідомлення: $message");
+    }, onError: (error) {
+      // Логіка обробки помилок
+      print("Помилка: $error");
+    }, onDone: () {
+      // Логіка після завершення з'єднання
+      print("З'єднання закрите.");
+    });
+  }
+
+  void sendMessage(String message) {
+    channel.sink.add(message);
+  }
+
+  void closeConnection() {
+    channel.sink.close();
+  }
+}
+
