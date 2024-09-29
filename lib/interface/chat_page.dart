@@ -1,48 +1,141 @@
 part of '../main.dart';
 
 class ChatPage extends StatefulWidget {
-  const ChatPage({super.key});
+  final String chatName;
+  final int chatId;
+
+  const ChatPage({super.key, required this.chatName, required this.chatId});
 
   @override
-  _ChatPageState createState() => _ChatPageState();
+  ChatPageState createState() => ChatPageState();
 }
 
-class _ChatPageState extends State<ChatPage> {
-  final _channel = WebSocketChannel.connect(Uri.parse(ipAddress));
+class ChatPageState extends State<ChatPage> {
   final _messageController = TextEditingController();
-  final List<String> _messages = [];
+  final List<Map<String, dynamic>> _messages = [];
+  late final WebSocketService _webSocketService;
+  int? userId;
+  
+
+  @override
+  void initState() {
+    super.initState();
+    _webSocketService = WebSocketService(ipAddress);
+
+    _loadCurrentUserId();
+    
+    _webSocketService.listenToMessages().listen((message) {
+      _handleIncomingMessage(message);
+    }, onError: (error) {
+      if (kDebugMode) {
+        print("Error (ChatPageState, WebSocket connect): $error");
+      }
+    }, onDone: () {
+      if (kDebugMode) {
+        print("Connection closed.");
+      }
+    });
+
+    _loadInitialMessages();
+  }
+
+  Future<void> _loadCurrentUserId() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      userId = prefs.getInt('userId');
+    });
+  }
+
+  void _loadInitialMessages() async {
+    final prefs = await SharedPreferences.getInstance();
+    int? userId = prefs.getInt('userId');
+    await reloadMessages(userId!, widget.chatId);
+  }
+
+  Future<void> reloadMessages(int userId, int chatId) async {
+    if (kDebugMode) {
+      print("ReloadMessages");
+      print(chatId);
+    }
+
+    String messages = await _webSocketService.getMessages(userId, chatId);
+    List<Map<String, dynamic>> decodedMessages = List<Map<String, dynamic>>.from(jsonDecode(messages));
+
+    updateMessages(decodedMessages);
+  }
+
+  void updateMessages(List<Map<String, dynamic>> messages) {
+    setState(() {
+      _messages.clear();
+      _messages.addAll(messages);
+    });
+  }
+
+  void _handleIncomingMessage(String message) {
+    final decodedMessage = jsonDecode(message);
+    if (decodedMessage['type'] == 'getmessages') {
+      final List<dynamic> messagesContent = jsonDecode(decodedMessage['content']);
+      List<Map<String, dynamic>> messages = List<Map<String, dynamic>>.from(messagesContent);
+      updateMessages(messages);
+    } else {
+      setState(() {
+        _messages.add({
+          'textcontent': decodedMessage['text'], 
+          'sender': decodedMessage['sender'],
+        });
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    
     return Column(
       children: [
+        // Заголовок з назвою чату
+        Container(
+          padding: const EdgeInsets.all(8.0),
+          color: secondMain,
+          child: Text(
+            widget.chatName,
+            style: const TextStyle(
+              color: textColorH,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        // Список повідомлень
         Expanded(
           child: ListView.builder(
             itemCount: _messages.length,
             itemBuilder: (context, index) {
-              return ListTile(
-                title: Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                      color: thirdMain, borderRadius: BorderRadius.circular(5)),
-                  child: Text(  
-                    _messages[index],
-                    style: const TextStyle(color: textColorH), // Колір тексту
+              final messageData = _messages[index];
+              return Align(
+                alignment: messageData['sender'] == userId
+                    ? Alignment.bottomRight
+                    : Alignment.bottomLeft,
+                child: FractionallySizedBox(
+                  widthFactor: 0.7,
+                  child: Container(
+                    padding: const EdgeInsets.all(10),
+                    margin: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: thirdMain,
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: Text(
+                      messageData['textcontent'] ?? '',
+                      style: const TextStyle(color: textColorH),
+                    ),
                   ),
                 ),
               );
             },
           ),
         ),
-        Container(
-          height: 50,
-          decoration: const BoxDecoration(
-            color: secondMain,
-            borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(10),
-              bottomRight: Radius.circular(10),
-            ),
-          ),
+        // Поле вводу повідомлень
+        Material(
+          color: secondMain,
           child: Row(
             children: [
               Expanded(
@@ -53,22 +146,16 @@ class _ChatPageState extends State<ChatPage> {
                     decoration: const InputDecoration(
                       filled: true,
                       fillColor: secondMain,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(10),
-                          bottomRight: Radius.circular(10),
-                        ),
-                        borderSide: BorderSide.none,
-                      ),
+                      border: InputBorder.none,
                       hintText: 'Write a message...',
+                      hintStyle: TextStyle(color: thirdMain),
                     ),
-                    style: const TextStyle(
-                      color: textColorH, // Колір тексту
-                    ),
+                    style: const TextStyle(color: textColorH),
                   ),
                 ),
               ),
               IconButton(
+                color: thirdMain,
                 icon: const Icon(Icons.send),
                 onPressed: _sendMessage,
               ),
@@ -79,38 +166,33 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  Future<void> _sendMessage() async {
-    final content = _messageController.text;
-    if (content.isNotEmpty) {
+  void _sendMessage() async {
+    if (_messageController.text.isNotEmpty && widget.chatId != 0) {
       final prefs = await SharedPreferences.getInstance();
       int? userId = prefs.getInt('userId');
-      if (kDebugMode) {
-        print(userId);
-      }
-      final message = jsonEncode({
-        'type': 'message',
-        'sender': userId,
-        'receiver': 'server',
-        'content': content
+
+      // Виклик сервісу для надсилання повідомлення
+      await _webSocketService.sendTextMessage(userId!, widget.chatId, _messageController.text);
+
+      setState(() {
+        _messages.add({
+          'textcontent': _messageController.text,
+          'sender': userId,
+        });
       });
-      _channel.sink.add(message);
+
       _messageController.clear();
+    } else {
+      if (kDebugMode) {
+        print("Message is empty or receiver id is 0.");
+        _messageController.clear();
+      }
     }
   }
 
   @override
-  void initState() {
-    super.initState();
-    _channel.stream.listen((message) {
-      setState(() {
-        _messages.add(message);
-      });
-    });
-  }
-
-  @override
   void dispose() {
-    _channel.sink.close();
+    _webSocketService.closeConnection();
     super.dispose();
   }
 }

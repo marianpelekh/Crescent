@@ -7,11 +7,12 @@ class MainPage extends StatefulWidget {
   const MainPage({super.key, required this.title, required this.username});
 
   @override
-  _MainPageState createState() => _MainPageState();
+  MainPageState createState() => MainPageState();
 }
 
-class _MainPageState extends State<MainPage> {
+class MainPageState extends State<MainPage> {
   bool isRightSidebarVisible = true;
+  String homepage = "home";
 
   void closeRightSidebar() {
     setState(() {
@@ -42,6 +43,11 @@ class _MainPageState extends State<MainPage> {
       );
     }
   }
+  void updateHomepage(String newHomepage) {
+    setState(() {
+      homepage = newHomepage; //Update of homepage after tapping on chat
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,10 +58,15 @@ class _MainPageState extends State<MainPage> {
           child: AppBar(
             elevation: 0,
             backgroundColor: secondMain,
-            title: SvgPicture.asset(
+            title: GestureDetector(
+            onTap: () {
+              updateHomepage("home"); // Викликайте метод при натисканні
+            },
+            child: SvgPicture.asset(
               'assets/CrescentLongLogo.svg',
               height: 40,
             ),
+          ),
             actions: [
               Padding(
                 padding: const EdgeInsets.only(right: 16.0),
@@ -95,8 +106,8 @@ class _MainPageState extends State<MainPage> {
         ),
         body: Row(children: [
           const ChatsPanel(),
-          const CenterPanel(
-            homepage: "chat",
+          CenterPanel(
+            homepage: homepage,
           ),
           RightSidebar(
             isRightSidebarVisible: false,

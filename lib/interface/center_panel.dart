@@ -37,7 +37,7 @@ class CenterPanel extends StatelessWidget {
               child: homepage == "home"
                   ? HomePage(
                       adjustedFontSize: adjustedFontSize) // Викликає компонент для home
-                  : const ChatPage(), // Викликає компонент для чату
+                  : const ChatPage(chatName: 'Choose chat to start...', chatId: 1,), // Викликає компонент для чату
             ),
           );
         },

@@ -1,4 +1,7 @@
+// ignore_for_file: prefer_interpolation_to_compose_strings
+
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web_socket_channel/io.dart';
@@ -10,10 +13,10 @@ class AuthPage extends StatefulWidget {
   const AuthPage({super.key});
 
   @override
-  _AuthPageState createState() => _AuthPageState();
+  AuthPageState createState() => AuthPageState();
 }
 
-class _AuthPageState extends State<AuthPage> {
+class AuthPageState extends State<AuthPage> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   late WebSocketChannel _channel;
@@ -36,11 +39,15 @@ class _AuthPageState extends State<AuthPage> {
     _channel.sink.add(message);
     _channel.stream.listen((response) async {
       final data = jsonDecode(response);
-      print(data);
-      
+      if (kDebugMode) {
+        print(data);
+      }
+
       if (data['type'] != null && data['type'] == 'auth') {
         if (data['status'] == 'success') {
-          print("succesful login");
+          if (kDebugMode) {
+            print("succesful login");
+          }
           final prefs = await SharedPreferences.getInstance();
           await prefs.setBool('loggedIn', true);
           await prefs.setString('username', username);
@@ -50,24 +57,30 @@ class _AuthPageState extends State<AuthPage> {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (context) => MainPage(title: 'Crescent', username: username),
+                builder: (context) =>
+                    MainPage(title: 'Crescent', username: username),
               ),
             );
           }
-
         } else {
-          print("login failed");
+          if (kDebugMode) {
+            print("login failed");
+          }
           if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Invalid username or password')),
-          );
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Invalid username or password')),
+            );
           }
         }
-      }
-      else if (data['type'] != null && data['type'] == 'message'){
+      } else if (data['type'] != null &&
+          data['type'] == 'auth' &&
+          data['status'] == 'failed') {
         if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Received message: ' + data['content'])),
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Invalid login or password'),
+              backgroundColor: errorColor,
+            ),
           );
         }
       }

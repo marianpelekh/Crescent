@@ -1,16 +1,40 @@
 part of '../main.dart';
 
+late WebSocketService _webSocketService;
+
+
 class ChatsPanel extends StatefulWidget {
   const ChatsPanel({super.key});
 
   @override
-  _ChatsPanelState createState() => _ChatsPanelState();
+  ChatsPanelState createState() => ChatsPanelState();
 }
 
-class _ChatsPanelState extends State<ChatsPanel> {
-  double _width = 300; //Початкова ширина
+class ChatsPanelState extends State<ChatsPanel> {
+  double _width = 300; // Початкова ширина
   double _dragStartX = 0;
-  bool _isResizing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _webSocketService = WebSocketService(ipAddress);
+    
+    _webSocketService.broadcastStream.listen((message) {
+      if (kDebugMode) {
+        print("Recieved message in ChatsPanel: $message");
+      }
+    }, onError: (error) {
+      if (kDebugMode) {
+        print("Error: $error");
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _webSocketService.closeConnection();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,49 +43,22 @@ class _ChatsPanelState extends State<ChatsPanel> {
         Container(
           color: backgroundColor,
           width: _width,
-          child: ListView(
-            padding: const EdgeInsets.all(8.0),
-            children: const [
-              ChatTile(
-                  name: 'Harry',
-                  message: 'Hello, we haven’t talked for a bit!'),
-              ChatTile(name: 'Tom', message: 'You won’t believe this...'),
-              ChatTile(name: 'Elliot', message: 'Don’t you wanna turn back...'),
-              ChatTile(
-                  name: 'Emma',
-                  message: 'Sorry, I haven’t seen your message...'),
-              ChatTile(name: 'Olivia', message: 'Do you like oranges?'),
-              ChatTile(name: 'Matt', message: 'I appreciate your desire...'),
-              ChatTile(
-                  name: 'Phia',
-                  message: 'I found a new game where you play...'),
-              ChatTile(
-                  name: 'Harry',
-                  message: 'Hello, we haven’t talked for a bit!'),
-              ChatTile(name: 'Tom', message: 'You won’t believe this...'),
-              ChatTile(name: 'Elliot', message: 'Don’t you wanna turn back...'),
-              ChatTile(
-                  name: 'Emma',
-                  message: 'Sorry, I haven’t seen your message...'),
-              ChatTile(name: 'Olivia', message: 'Do you like oranges?'),
-              ChatTile(name: 'Matt', message: 'I appreciate your desire...'),
-              ChatTile(
-                  name: 'Phia',
-                  message: 'I found a new game where you play...'),
-              ChatTile(
-                  name: 'Harry',
-                  message: 'Hello, we haven’t talked for a bit!'),
-              ChatTile(name: 'Tom', message: 'You won’t believe this...'),
-              ChatTile(name: 'Elliot', message: 'Don’t you wanna turn back...'),
-              ChatTile(
-                  name: 'Emma',
-                  message: 'Sorry, I haven’t seen your message...'),
-              ChatTile(name: 'Olivia', message: 'Do you like oranges?'),
-              ChatTile(name: 'Matt', message: 'I appreciate your desire...'),
-              ChatTile(
-                  name: 'Phia',
-                  message: 'I found a new game where you play...'),
-            ],
+          child: FutureBuilder<List<ChatTile>>(
+            future: _webSocketService.getChats(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                return const Center(child: Text('Error loading chats'));
+              } else if (snapshot.hasData) {
+                return ListView(
+                  padding: const EdgeInsets.all(8.0),
+                  children: buildChatTiles(snapshot.data!),
+                );
+              } else {
+                return const Center(child: Text('No chats available'));
+              }
+            },
           ),
         ),
         MouseRegion(
@@ -70,7 +67,6 @@ class _ChatsPanelState extends State<ChatsPanel> {
             onPanStart: (details) {
               _dragStartX = details.globalPosition.dx;
               setState(() {
-                _isResizing = true;
               });
             },
             onPanUpdate: (details) {
@@ -82,15 +78,22 @@ class _ChatsPanelState extends State<ChatsPanel> {
             },
             onPanEnd: (_) {
               setState(() {
-                _isResizing = false;
               });
             },
             child: Container(
-              width: 5, // область для ресайзу
+              width: 20, // Ширина для захоплення мишкою
               height: 50,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: textColorS,
+              decoration: const BoxDecoration(
+                color: Colors.transparent, // Прозорий фон для великої області
+              ),
+              alignment: Alignment.center,
+              child: Container(
+                width: 5, // Власне ширина смужки
+                height: 50,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: textColorS, // Колір смужки
+                ),
               ),
             ),
           ),
@@ -98,40 +101,106 @@ class _ChatsPanelState extends State<ChatsPanel> {
       ],
     );
   }
+
+  List<Widget> buildChatTiles(List<ChatTile> chats) {
+    return chats.map((chat) {
+      return ChatTile(
+        key: ValueKey(chat.name),
+        imageName: chat.imageName,
+        name: chat.name,
+        message: chat.message,
+        chatId: chat.chatId,
+      );
+    }).toList();
+  }
 }
 
-class ChatTile extends StatelessWidget {
+class ChatTile extends StatefulWidget {
+  final String imageName;
   final String name;
   final String message;
+  final int chatId;
 
-  const ChatTile({super.key, required this.name, required this.message});
+  const ChatTile({
+    super.key,
+    required this.imageName,
+    required this.name,
+    required this.message,
+    required this.chatId,
+  });
 
   @override
-Widget build(BuildContext context) {
-  return LayoutBuilder(
-    builder: (context, constraints) {
-      final double availableWidth = constraints.maxWidth - 64; // Мінус ширину аватарки та відступи
-      return ListTile(
-        leading: CircleAvatar(
-          backgroundColor: textColorH,
-          child: Text(name[0]),
-        ),
-        title: availableWidth > 80
-            ? Text(name, style: const TextStyle(color: textColorH))
-            : null,
-        subtitle: availableWidth > 80
-            ? Text(
-                message,
-                style: const TextStyle(color: textColorP),
-                overflow: TextOverflow.ellipsis,
-              )
-            : null,
-        onTap: () {
-          // Дії при натисканні
-        },
-      );
-    },
-  );
+  ChatTileState createState() => ChatTileState();
 }
 
+class ChatTileState extends State<ChatTile> {
+  late Future<String?> _imageUrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadImage();
+  }
+
+  void _loadImage() {
+    setState(() {
+      _imageUrl = _webSocketService.getImage(widget.imageName);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<String?>(
+      future: _imageUrl,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const CircularProgressIndicator();
+        } else if (snapshot.hasError) {
+          return const Icon(Icons.error);
+        } else if (snapshot.hasData && snapshot.data != null) {
+          return ListTile(
+            leading: CircleAvatar(
+              backgroundColor: textColorH,
+              child: ClipOval(
+                child: snapshot.data!.startsWith('http')
+                    ? Image.network(
+                        snapshot.data!,
+                        width: 40,
+                        height: 40,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Text(widget.name[0]);
+                        },
+                      )
+                    : Image.memory(
+                        base64Decode(snapshot.data!),
+                        width: 40,
+                        height: 40,
+                        fit: BoxFit.cover,
+                      ),
+              ),
+            ),
+            title: Text(widget.name, style: const TextStyle(color: textColorH)),
+            subtitle: Text(
+              widget.message,
+              style: const TextStyle(color: textColorP),
+              overflow: TextOverflow.ellipsis,
+            ),
+          );
+        } else {
+          return ListTile(
+            leading: CircleAvatar(
+              child: Text(widget.name[0]),
+            ),
+            title: Text(widget.name, style: const TextStyle(color: textColorH)),
+            subtitle: Text(
+              widget.message,
+              style: const TextStyle(color: textColorP),
+              overflow: TextOverflow.ellipsis,
+            ),
+          );
+        }
+      },
+    );
+  }
 }

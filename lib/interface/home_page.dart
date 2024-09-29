@@ -10,7 +10,7 @@ class HomePage extends StatelessWidget {
     return Stack(
       children: [
         Container(
-          width: MediaQuery.of(context).size.width * 0.7,
+          width: MediaQuery.of(context).size.width,
           margin: const EdgeInsets.only(left: 10, right: 10, bottom: 20),
           decoration: const BoxDecoration(
             color: firstMain,
