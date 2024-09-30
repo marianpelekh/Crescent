@@ -2,7 +2,6 @@ part of '../main.dart';
 
 late WebSocketService _webSocketService;
 
-
 class ChatsPanel extends StatefulWidget {
   const ChatsPanel({super.key});
 
@@ -11,14 +10,14 @@ class ChatsPanel extends StatefulWidget {
 }
 
 class ChatsPanelState extends State<ChatsPanel> {
-  double _width = 300; // Початкова ширина
+  double _width = 300;
   double _dragStartX = 0;
 
   @override
   void initState() {
     super.initState();
     _webSocketService = WebSocketService(ipAddress);
-    
+
     _webSocketService.broadcastStream.listen((message) {
       if (kDebugMode) {
         print("Recieved message in ChatsPanel: $message");
@@ -47,10 +46,14 @@ class ChatsPanelState extends State<ChatsPanel> {
             future: _webSocketService.getChats(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
+                print("Loading chats...");
+                return const Center(child: Text("Loading chats..."));
               } else if (snapshot.hasError) {
+                print("Error loading chats...");
                 return const Center(child: Text('Error loading chats'));
               } else if (snapshot.hasData) {
+                print("Chats have been loaded...");
+                print(snapshot.data!);
                 return ListView(
                   padding: const EdgeInsets.all(8.0),
                   children: buildChatTiles(snapshot.data!),
@@ -66,8 +69,7 @@ class ChatsPanelState extends State<ChatsPanel> {
           child: GestureDetector(
             onPanStart: (details) {
               _dragStartX = details.globalPosition.dx;
-              setState(() {
-              });
+              setState(() {});
             },
             onPanUpdate: (details) {
               setState(() {
@@ -77,8 +79,7 @@ class ChatsPanelState extends State<ChatsPanel> {
               });
             },
             onPanEnd: (_) {
-              setState(() {
-              });
+              setState(() {});
             },
             child: Container(
               width: 20, // Ширина для захоплення мишкою
@@ -105,7 +106,7 @@ class ChatsPanelState extends State<ChatsPanel> {
   List<Widget> buildChatTiles(List<ChatTile> chats) {
     return chats.map((chat) {
       return ChatTile(
-        key: ValueKey(chat.name),
+        key: ValueKey(chat.chatId),
         imageName: chat.imageName,
         name: chat.name,
         message: chat.message,
@@ -134,24 +135,25 @@ class ChatTile extends StatefulWidget {
 }
 
 class ChatTileState extends State<ChatTile> {
-  late Future<String?> _imageUrl;
+  // late Future<String?> _imageUrl;
 
   @override
   void initState() {
     super.initState();
-    _loadImage();
+    // _loadImage();
   }
 
   void _loadImage() {
     setState(() {
-      _imageUrl = _webSocketService.getImage(widget.imageName);
+      // _imageUrl = _webSocketService.getImage(widget.imageName);
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<String?>(
-      future: _imageUrl,
+      // future: _imageUrl,
+      future: null,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const CircularProgressIndicator();
@@ -189,16 +191,24 @@ class ChatTileState extends State<ChatTile> {
           );
         } else {
           return ListTile(
-            leading: CircleAvatar(
-              child: Text(widget.name[0]),
-            ),
-            title: Text(widget.name, style: const TextStyle(color: textColorH)),
-            subtitle: Text(
-              widget.message,
-              style: const TextStyle(color: textColorP),
-              overflow: TextOverflow.ellipsis,
-            ),
-          );
+              leading: CircleAvatar(
+                child: Text(widget.name[0]),
+              ),
+              title:
+                  Text(widget.name, style: const TextStyle(color: textColorH)),
+              subtitle: Text(
+                widget.message,
+                style: const TextStyle(color: textColorP),
+                overflow: TextOverflow.ellipsis,
+              ),
+              onTap: () async {
+                final prefs = await SharedPreferences.getInstance();
+                int? userId = prefs.getInt("userId");
+
+                if (userId != null) {
+                  ChatPageState.reloadMessages(userId, widget.chatId);
+                }
+              });
         }
       },
     );

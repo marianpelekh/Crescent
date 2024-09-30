@@ -8,6 +8,7 @@ class ChatPage extends StatefulWidget {
 
   @override
   ChatPageState createState() => ChatPageState();
+
 }
 
 class ChatPageState extends State<ChatPage> {
@@ -15,7 +16,6 @@ class ChatPageState extends State<ChatPage> {
   final List<Map<String, dynamic>> _messages = [];
   late final WebSocketService _webSocketService;
   int? userId;
-  
 
   @override
   void initState() {
@@ -23,7 +23,7 @@ class ChatPageState extends State<ChatPage> {
     _webSocketService = WebSocketService(ipAddress);
 
     _loadCurrentUserId();
-    
+
     _webSocketService.listenToMessages().listen((message) {
       _handleIncomingMessage(message);
     }, onError: (error) {
@@ -49,7 +49,13 @@ class ChatPageState extends State<ChatPage> {
   void _loadInitialMessages() async {
     final prefs = await SharedPreferences.getInstance();
     int? userId = prefs.getInt('userId');
-    await reloadMessages(userId!, widget.chatId);
+    if (userId != null) {
+      await reloadMessages(userId, widget.chatId);
+    } else {
+      if (kDebugMode) {
+        print("User ID is null");
+      }
+    }
   }
 
   Future<void> reloadMessages(int userId, int chatId) async {
@@ -58,10 +64,16 @@ class ChatPageState extends State<ChatPage> {
       print(chatId);
     }
 
-    String messages = await _webSocketService.getMessages(userId, chatId);
-    List<Map<String, dynamic>> decodedMessages = List<Map<String, dynamic>>.from(jsonDecode(messages));
+    try {
+      String messages = await _webSocketService.getMessages(userId, chatId);
+      List<Map<String, dynamic>> decodedMessages = List<Map<String, dynamic>>.from(jsonDecode(messages));
 
-    updateMessages(decodedMessages);
+      updateMessages(decodedMessages);
+    } catch (e) {
+      if (kDebugMode) {
+        print("Error loading messages: $e");
+      }
+    }
   }
 
   void updateMessages(List<Map<String, dynamic>> messages) {
@@ -72,20 +84,27 @@ class ChatPageState extends State<ChatPage> {
   }
 
   void _handleIncomingMessage(String message) {
-    final decodedMessage = jsonDecode(message);
-    if (decodedMessage['type'] == 'getmessages') {
-      final List<dynamic> messagesContent = jsonDecode(decodedMessage['content']);
-      List<Map<String, dynamic>> messages = List<Map<String, dynamic>>.from(messagesContent);
-      updateMessages(messages);
-    } else {
-      setState(() {
-        _messages.add({
-          'textcontent': decodedMessage['text'], 
-          'sender': decodedMessage['sender'],
+    try {
+      final decodedMessage = jsonDecode(message);
+      if (decodedMessage['type'] == 'getmessages') {
+        final List<dynamic> messagesContent = jsonDecode(decodedMessage['content']);
+        List<Map<String, dynamic>> messages = List<Map<String, dynamic>>.from(messagesContent);
+        updateMessages(messages);
+      } else {
+        setState(() {
+          _messages.add({
+            'textcontent': decodedMessage['text'], 
+            'sender': decodedMessage['sender'],
+          });
         });
-      });
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print("Error handling incoming message: $e");
+      }
     }
   }
+
 
   @override
   Widget build(BuildContext context) {

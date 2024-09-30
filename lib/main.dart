@@ -6,12 +6,12 @@ import 'dart:math';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import './interface/auth_page.dart';
 
+import './interface/auth_page.dart';
 part './interface/main_page.dart';
-part 'interface/chats_panel.dart';
-part 'interface/rooms_panel.dart';
-part 'interface/center_panel.dart';
+part './interface/chats_panel.dart';
+part './interface/rooms_panel.dart';
+part './interface/center_panel.dart';
 part './interface/home_page.dart';
 part './interface/chat_page.dart';
 part 'constants.dart';
