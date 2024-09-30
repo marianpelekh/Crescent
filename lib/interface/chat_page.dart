@@ -8,7 +8,6 @@ class ChatPage extends StatefulWidget {
 
   @override
   ChatPageState createState() => ChatPageState();
-
 }
 
 class ChatPageState extends State<ChatPage> {
@@ -21,6 +20,9 @@ class ChatPageState extends State<ChatPage> {
   void initState() {
     super.initState();
     _webSocketService = WebSocketService(ipAddress);
+    if (kDebugMode) {
+      print("WebSocket in init state ChatPageState has been initialized.");
+    }
 
     _loadCurrentUserId();
 
@@ -64,14 +66,32 @@ class ChatPageState extends State<ChatPage> {
       print(chatId);
     }
 
-    try {
-      String messages = await _webSocketService.getMessages(userId, chatId);
-      List<Map<String, dynamic>> decodedMessages = List<Map<String, dynamic>>.from(jsonDecode(messages));
-
-      updateMessages(decodedMessages);
-    } catch (e) {
+    Future<void> reloadMessages(int userId, int chatId) async {
       if (kDebugMode) {
-        print("Error loading messages: $e");
+        print("Trying to reload messages for Chat ID: $chatId");
+      }
+
+      try {
+        if (mounted) {
+          if (kDebugMode) {
+            print("Mounted");
+          }
+          String messages = await _webSocketService.getMessages(userId, chatId);
+          List<Map<String, dynamic>> decodedMessages =
+              List<Map<String, dynamic>>.from(jsonDecode(messages));
+
+          updateMessages(decodedMessages);
+        } else {
+          if (kDebugMode) {
+            print("Not mounted, restart in 5s");
+          }
+          await Future.delayed(const Duration(seconds: 5));
+          reloadMessages(userId, chatId);
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          print("Error loading messages: $e");
+        }
       }
     }
   }
@@ -87,13 +107,15 @@ class ChatPageState extends State<ChatPage> {
     try {
       final decodedMessage = jsonDecode(message);
       if (decodedMessage['type'] == 'getmessages') {
-        final List<dynamic> messagesContent = jsonDecode(decodedMessage['content']);
-        List<Map<String, dynamic>> messages = List<Map<String, dynamic>>.from(messagesContent);
+        final List<dynamic> messagesContent =
+            jsonDecode(decodedMessage['content']);
+        List<Map<String, dynamic>> messages =
+            List<Map<String, dynamic>>.from(messagesContent);
         updateMessages(messages);
       } else {
         setState(() {
           _messages.add({
-            'textcontent': decodedMessage['text'], 
+            'textcontent': decodedMessage['text'],
             'sender': decodedMessage['sender'],
           });
         });
@@ -105,10 +127,8 @@ class ChatPageState extends State<ChatPage> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
-    
     return Column(
       children: [
         // Заголовок з назвою чату
@@ -191,7 +211,8 @@ class ChatPageState extends State<ChatPage> {
       int? userId = prefs.getInt('userId');
 
       // Виклик сервісу для надсилання повідомлення
-      await _webSocketService.sendTextMessage(userId!, widget.chatId, _messageController.text);
+      await _webSocketService.sendTextMessage(
+          userId!, widget.chatId, _messageController.text);
 
       setState(() {
         _messages.add({

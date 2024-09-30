@@ -206,7 +206,8 @@ class ChatTileState extends State<ChatTile> {
                 int? userId = prefs.getInt("userId");
 
                 if (userId != null) {
-                  ChatPageState.reloadMessages(userId, widget.chatId);
+                  ChatPageState chat = ChatPageState();
+                  chat.reloadMessages(userId, widget.chatId);
                 }
               });
         }
