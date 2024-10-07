@@ -3,8 +3,9 @@ part of '../main.dart';
 late WebSocketService _webSocketService;
 
 class ChatsPanel extends StatefulWidget {
-  const ChatsPanel({super.key});
+  final Function(String) onUpdateHomepage;
 
+  const ChatsPanel({super.key, required this.onUpdateHomepage});
   @override
   ChatsPanelState createState() => ChatsPanelState();
 }
@@ -52,8 +53,10 @@ class ChatsPanelState extends State<ChatsPanel> {
                 print("Error loading chats...");
                 return const Center(child: Text('Error loading chats'));
               } else if (snapshot.hasData) {
-                print("Chats have been loaded...");
-                print(snapshot.data!);
+                if (kDebugMode) {
+                  print("Chats have been loaded...");
+                  print(snapshot.data!);
+                }
                 return ListView(
                   padding: const EdgeInsets.all(8.0),
                   children: buildChatTiles(snapshot.data!),
@@ -80,6 +83,9 @@ class ChatsPanelState extends State<ChatsPanel> {
             },
             onPanEnd: (_) {
               setState(() {});
+            },
+            onTap: () {
+              widget.onUpdateHomepage('chat');
             },
             child: Container(
               width: 20, // Ширина для захоплення мишкою
@@ -111,6 +117,7 @@ class ChatsPanelState extends State<ChatsPanel> {
         name: chat.name,
         message: chat.message,
         chatId: chat.chatId,
+        usId: chat.usId,
       );
     }).toList();
   }
@@ -121,6 +128,7 @@ class ChatTile extends StatefulWidget {
   final String name;
   final String message;
   final int chatId;
+  final int usId;
 
   const ChatTile({
     super.key,
@@ -128,6 +136,7 @@ class ChatTile extends StatefulWidget {
     required this.name,
     required this.message,
     required this.chatId,
+    required this.usId,
   });
 
   @override
@@ -207,7 +216,7 @@ class ChatTileState extends State<ChatTile> {
 
                 if (userId != null) {
                   ChatPageState chat = ChatPageState();
-                  chat.reloadMessages(userId, widget.chatId);
+                  chat.reloadMessages(userId, widget.usId);
                 }
               });
         }

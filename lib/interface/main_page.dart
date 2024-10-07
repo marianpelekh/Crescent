@@ -11,6 +11,7 @@ class MainPage extends StatefulWidget {
 }
 
 class MainPageState extends State<MainPage> {
+  final GlobalKey<CenterPanelState> centerPanelKey = GlobalKey<CenterPanelState>();
   bool isRightSidebarVisible = true;
   String homepage = "home";
 
@@ -22,7 +23,6 @@ class MainPageState extends State<MainPage> {
 
   Future<void> _logout() async {
     final prefs = await SharedPreferences.getInstance();
-
 
 //Дописати логіку видаення токена з пристрою користувача
     // late WebSocketChannel _channel;
@@ -43,6 +43,7 @@ class MainPageState extends State<MainPage> {
       );
     }
   }
+
   void updateHomepage(String newHomepage) {
     setState(() {
       homepage = newHomepage; //Update of homepage after tapping on chat
@@ -59,14 +60,14 @@ class MainPageState extends State<MainPage> {
             elevation: 0,
             backgroundColor: secondMain,
             title: GestureDetector(
-            onTap: () {
-              updateHomepage("home"); // Викликайте метод при натисканні
-            },
-            child: SvgPicture.asset(
-              'assets/CrescentLongLogo.svg',
-              height: 40,
+              onTap: () {
+                updateHomepage("home"); // Викликайте метод при натисканні
+              },
+              child: SvgPicture.asset(
+                'assets/CrescentLongLogo.svg',
+                height: 40,
+              ),
             ),
-          ),
             actions: [
               Padding(
                 padding: const EdgeInsets.only(right: 16.0),
@@ -86,9 +87,10 @@ class MainPageState extends State<MainPage> {
                         padding: EdgeInsets.zero,
                         backgroundColor:
                             Colors.transparent, // Забрати внутрішні відступи
-                        minimumSize:
-                            const Size(40, 40), // Задати мінімальні розміри кнопки
-                        shape: const CircleBorder(), // Зробити фон кнопки прозорим
+                        minimumSize: const Size(
+                            40, 40), // Задати мінімальні розміри кнопки
+                        shape:
+                            const CircleBorder(), // Зробити фон кнопки прозорим
                         elevation: 0, // Без тіні
                       ),
                       child: const CircleAvatar(
@@ -105,10 +107,12 @@ class MainPageState extends State<MainPage> {
           ),
         ),
         body: Row(children: [
-          const ChatsPanel(),
-          CenterPanel(
-            homepage: homepage,
-          ),
+          ChatsPanel(onUpdateHomepage: (newHomepage) {
+            setState(() {
+              centerPanelKey.currentState?.updateHomepage(newHomepage);
+            });
+          }),
+          CenterPanel(key: centerPanelKey, homepage: 'chat'),
           RightSidebar(
             isRightSidebarVisible: false,
             closeSidebar: closeRightSidebar,

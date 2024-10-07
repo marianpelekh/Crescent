@@ -126,9 +126,11 @@ class WebSocketService {
       final decoded = jsonDecode(event);
       return decoded['type'] == 'getmessages';
     });
+    print(data);
 
-    final response = jsonEncode(data);
-    return response;
+return data;
+    // final response = jsonEncode(data);
+    // return response;
   }
 
   Future<List<ChatTile>> getChats() async {
@@ -158,6 +160,7 @@ class WebSocketService {
             name: chatData['username'],
             message: 'Text chat',
             chatId: chatData['id'],
+            usId: chatData['usId'],
           );
         }).toList();
 

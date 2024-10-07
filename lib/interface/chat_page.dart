@@ -2,9 +2,9 @@ part of '../main.dart';
 
 class ChatPage extends StatefulWidget {
   final String chatName;
-  final int chatId;
+  final int recId;
 
-  const ChatPage({super.key, required this.chatName, required this.chatId});
+  const ChatPage({super.key, required this.chatName, required this.recId});
 
   @override
   ChatPageState createState() => ChatPageState();
@@ -52,7 +52,7 @@ class ChatPageState extends State<ChatPage> {
     final prefs = await SharedPreferences.getInstance();
     int? userId = prefs.getInt('userId');
     if (userId != null) {
-      await reloadMessages(userId, widget.chatId);
+      await reloadMessages(userId, widget.recId);
     } else {
       if (kDebugMode) {
         print("User ID is null");
@@ -60,46 +60,51 @@ class ChatPageState extends State<ChatPage> {
     }
   }
 
-  Future<void> reloadMessages(int userId, int chatId) async {
+  Future<void> reloadMessages(int userId, int recId) async {
     if (kDebugMode) {
-      print("ReloadMessages");
-      print(chatId);
+      print("Trying to reload messages for Chat ID: $recId");
     }
 
-    Future<void> reloadMessages(int userId, int chatId) async {
-      if (kDebugMode) {
-        print("Trying to reload messages for Chat ID: $chatId");
-      }
+    try {
+      if (mounted) {
+        if (kDebugMode) {
+          print("Mounted");
+        }
 
-      try {
-        if (mounted) {
-          if (kDebugMode) {
-            print("Mounted");
-          }
-          String messages = await _webSocketService.getMessages(userId, chatId);
-          List<Map<String, dynamic>> decodedMessages =
-              List<Map<String, dynamic>>.from(jsonDecode(messages));
+        String messages = await _webSocketService.getMessages(userId, recId);
+        var decodedMessages = jsonDecode(messages);
+        print(decodedMessages);
 
-          updateMessages(decodedMessages);
+        if (decodedMessages['content'] is List) {
+          updateMessages(decodedMessages['content']);
+        } else if (decodedMessages['content'] is Map) {
+          List<Map<String, dynamic>> messageList = [
+            Map<String, dynamic>.from(decodedMessages['content'])
+          ];
+          updateMessages(messageList);
         } else {
           if (kDebugMode) {
-            print("Not mounted, restart in 5s");
+            print("Unexpected format of decodedMessages");
           }
-          await Future.delayed(const Duration(seconds: 5));
-          reloadMessages(userId, chatId);
-        }
-      } catch (e) {
-        if (kDebugMode) {
-          print("Error loading messages: $e");
         }
       }
+    } catch (e) {
+      if (kDebugMode) {
+        print("Error loading messages: $e");
+      }
+      await Future.delayed(const Duration(seconds: 15));
+      reloadMessages(userId, recId);
     }
   }
 
-  void updateMessages(List<Map<String, dynamic>> messages) {
+  void updateMessages(List<dynamic> messages) {
+    print(messages); // Для перевірки типу
     setState(() {
       _messages.clear();
-      _messages.addAll(messages);
+      List<Map<String, dynamic>> mappedMessages = messages
+          .map((message) => Map<String, dynamic>.from(message))
+          .toList();
+      _messages.addAll(mappedMessages.reversed.toList());
     });
   }
 
@@ -109,14 +114,16 @@ class ChatPageState extends State<ChatPage> {
       if (decodedMessage['type'] == 'getmessages') {
         final List<dynamic> messagesContent =
             jsonDecode(decodedMessage['content']);
+
         List<Map<String, dynamic>> messages =
             List<Map<String, dynamic>>.from(messagesContent);
+
         updateMessages(messages);
       } else {
         setState(() {
           _messages.add({
-            'textcontent': decodedMessage['text'],
-            'sender': decodedMessage['sender'],
+            'textcontent': decodedMessage['text'] ?? '',
+            'sender': decodedMessage['sender'] ?? 0,
           });
         });
       }
@@ -131,7 +138,6 @@ class ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Заголовок з назвою чату
         Container(
           padding: const EdgeInsets.all(8.0),
           color: secondMain,
@@ -143,28 +149,37 @@ class ChatPageState extends State<ChatPage> {
             ),
           ),
         ),
-        // Список повідомлень
         Expanded(
           child: ListView.builder(
             itemCount: _messages.length,
             itemBuilder: (context, index) {
               final messageData = _messages[index];
+
+              bool isCurrentUser = messageData['sender'] == userId;
+
               return Align(
-                alignment: messageData['sender'] == userId
-                    ? Alignment.bottomRight
-                    : Alignment.bottomLeft,
+                alignment: isCurrentUser
+                    ? Alignment.centerRight
+                    : Alignment.centerLeft,
                 child: FractionallySizedBox(
                   widthFactor: 0.7,
                   child: Container(
                     padding: const EdgeInsets.all(10),
-                    margin: const EdgeInsets.all(10),
+                    margin: const EdgeInsets.symmetric(vertical: 5),
                     decoration: BoxDecoration(
-                      color: thirdMain,
-                      borderRadius: BorderRadius.circular(5),
+                      color: isCurrentUser ? myMessages : thirdMain,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(isCurrentUser ? 12 : 0),
+                        topRight: Radius.circular(isCurrentUser ? 0 : 12),
+                        bottomLeft: const Radius.circular(12),
+                        bottomRight: const Radius.circular(12),
+                      ),
                     ),
                     child: Text(
-                      messageData['textcontent'] ?? '',
-                      style: const TextStyle(color: textColorH),
+                      messageData['text'] ?? '',
+                      style: TextStyle(
+                        color: isCurrentUser ? textColorH : textColorH,
+                      ),
                     ),
                   ),
                 ),
@@ -172,7 +187,6 @@ class ChatPageState extends State<ChatPage> {
             },
           ),
         ),
-        // Поле вводу повідомлень
         Material(
           color: secondMain,
           child: Row(
@@ -206,13 +220,13 @@ class ChatPageState extends State<ChatPage> {
   }
 
   void _sendMessage() async {
-    if (_messageController.text.isNotEmpty && widget.chatId != 0) {
+    if (_messageController.text.isNotEmpty && widget.recId != 0) {
       final prefs = await SharedPreferences.getInstance();
       int? userId = prefs.getInt('userId');
 
       // Виклик сервісу для надсилання повідомлення
       await _webSocketService.sendTextMessage(
-          userId!, widget.chatId, _messageController.text);
+          userId!, widget.recId, _messageController.text);
 
       setState(() {
         _messages.add({

@@ -1,9 +1,28 @@
 part of '../main.dart';
-
-class CenterPanel extends StatelessWidget {
+class CenterPanel extends StatefulWidget {
   final String homepage;
+  final Function(String)? onUpdateHomepage;
 
-  const CenterPanel({super.key, required this.homepage});
+  const CenterPanel({super.key, required this.homepage, this.onUpdateHomepage});
+
+  @override
+  CenterPanelState createState() => CenterPanelState();
+}
+
+class CenterPanelState extends State<CenterPanel> {
+  late String homepage;
+
+  @override
+  void initState() {
+    super.initState();
+    homepage = widget.homepage;
+  }
+
+  void updateHomepage(String newHomepage) {
+    setState(() {
+      homepage = newHomepage;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,9 +54,9 @@ class CenterPanel extends StatelessWidget {
                 bottomRight: Radius.circular(10),
               ),
               child: homepage == "home"
-                  ? HomePage(
-                      adjustedFontSize: adjustedFontSize) // Викликає компонент для home
-                  : const ChatPage(chatName: 'Choose chat to start...', chatId: 1,), // Викликає компонент для чату
+                  ? HomePage(adjustedFontSize: adjustedFontSize)
+                  : const ChatPage(
+                      chatName: 'Choose chat to start...', recId: 1),
             ),
           );
         },
