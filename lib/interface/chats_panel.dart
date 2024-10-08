@@ -47,10 +47,14 @@ class ChatsPanelState extends State<ChatsPanel> {
             future: _webSocketService.getChats(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                print("Loading chats...");
+                if (kDebugMode) {
+                  print("Loading chats...");
+                }
                 return const Center(child: Text("Loading chats..."));
               } else if (snapshot.hasError) {
-                print("Error loading chats...");
+                if (kDebugMode) {
+                  print("Error loading chats...");
+                }
                 return const Center(child: Text('Error loading chats'));
               } else if (snapshot.hasData) {
                 if (kDebugMode) {
@@ -58,9 +62,18 @@ class ChatsPanelState extends State<ChatsPanel> {
                   print(snapshot.data!);
                 }
                 return ListView(
-                  padding: const EdgeInsets.all(8.0),
-                  children: buildChatTiles(snapshot.data!),
-                );
+                    children: snapshot.data!.map((chatTile) {
+                  return GestureDetector(
+                    onTap: () {
+                      //This is not working
+                      if (kDebugMode) {
+                        print('Tapped chat tile');
+                      }
+                      widget.onUpdateHomepage('chat');
+                    },
+                    child: chatTile,
+                  );
+                }).toList());
               } else {
                 return const Center(child: Text('No chats available'));
               }
@@ -83,9 +96,6 @@ class ChatsPanelState extends State<ChatsPanel> {
             },
             onPanEnd: (_) {
               setState(() {});
-            },
-            onTap: () {
-              widget.onUpdateHomepage('chat');
             },
             child: Container(
               width: 20, // Ширина для захоплення мишкою
@@ -118,6 +128,10 @@ class ChatsPanelState extends State<ChatsPanel> {
         message: chat.message,
         chatId: chat.chatId,
         usId: chat.usId,
+        onTap: () {
+          print("ChatsPanelState updateHomepage call");
+          widget.onUpdateHomepage('chat');
+        },
       );
     }).toList();
   }
@@ -129,15 +143,16 @@ class ChatTile extends StatefulWidget {
   final String message;
   final int chatId;
   final int usId;
+  final VoidCallback? onTap;
 
-  const ChatTile({
-    super.key,
-    required this.imageName,
-    required this.name,
-    required this.message,
-    required this.chatId,
-    required this.usId,
-  });
+  const ChatTile(
+      {super.key,
+      required this.imageName,
+      required this.name,
+      required this.message,
+      required this.chatId,
+      required this.usId,
+      this.onTap});
 
   @override
   ChatTileState createState() => ChatTileState();
@@ -197,6 +212,7 @@ class ChatTileState extends State<ChatTile> {
               style: const TextStyle(color: textColorP),
               overflow: TextOverflow.ellipsis,
             ),
+            onTap: widget.onTap,
           );
         } else {
           return ListTile(

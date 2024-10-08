@@ -73,7 +73,9 @@ class ChatPageState extends State<ChatPage> {
 
         String messages = await _webSocketService.getMessages(userId, recId);
         var decodedMessages = jsonDecode(messages);
-        print(decodedMessages);
+        if (kDebugMode) {
+          print(decodedMessages);
+        }
 
         if (decodedMessages['content'] is List) {
           updateMessages(decodedMessages['content']);
@@ -98,7 +100,9 @@ class ChatPageState extends State<ChatPage> {
   }
 
   void updateMessages(List<dynamic> messages) {
-    print(messages); // Для перевірки типу
+    if (kDebugMode) {
+      print(messages);
+    } // Для перевірки типу
     setState(() {
       _messages.clear();
       List<Map<String, dynamic>> mappedMessages = messages
@@ -151,6 +155,7 @@ class ChatPageState extends State<ChatPage> {
         ),
         Expanded(
           child: ListView.builder(
+            padding: const EdgeInsets.all(20),
             itemCount: _messages.length,
             itemBuilder: (context, index) {
               final messageData = _messages[index];
@@ -169,10 +174,10 @@ class ChatPageState extends State<ChatPage> {
                     decoration: BoxDecoration(
                       color: isCurrentUser ? myMessages : thirdMain,
                       borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(isCurrentUser ? 12 : 0),
-                        topRight: Radius.circular(isCurrentUser ? 0 : 12),
-                        bottomLeft: const Radius.circular(12),
-                        bottomRight: const Radius.circular(12),
+                        bottomLeft: Radius.circular(isCurrentUser ? 10 : 0),
+                        bottomRight: Radius.circular(isCurrentUser ? 0 : 10),
+                        topLeft: const Radius.circular(10),
+                        topRight: const Radius.circular(10),
                       ),
                     ),
                     child: Text(
@@ -223,19 +228,17 @@ class ChatPageState extends State<ChatPage> {
     if (_messageController.text.isNotEmpty && widget.recId != 0) {
       final prefs = await SharedPreferences.getInstance();
       int? userId = prefs.getInt('userId');
-
-      // Виклик сервісу для надсилання повідомлення
       await _webSocketService.sendTextMessage(
           userId!, widget.recId, _messageController.text);
 
       setState(() {
         _messages.add({
-          'textcontent': _messageController.text,
+          'text': _messageController.text,
           'sender': userId,
         });
-      });
+        _messageController.clear();
 
-      _messageController.clear();
+      });
     } else {
       if (kDebugMode) {
         print("Message is empty or receiver id is 0.");

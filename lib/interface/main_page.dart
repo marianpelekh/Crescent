@@ -46,7 +46,7 @@ class MainPageState extends State<MainPage> {
 
   void updateHomepage(String newHomepage) {
     setState(() {
-      homepage = newHomepage; //Update of homepage after tapping on chat
+      homepage = newHomepage; //Update homepage after tapping on chat
     });
   }
 
@@ -61,7 +61,7 @@ class MainPageState extends State<MainPage> {
             backgroundColor: secondMain,
             title: GestureDetector(
               onTap: () {
-                updateHomepage("home"); // Викликайте метод при натисканні
+                updateHomepage("home");
               },
               child: SvgPicture.asset(
                 'assets/CrescentLongLogo.svg',
@@ -109,10 +109,10 @@ class MainPageState extends State<MainPage> {
         body: Row(children: [
           ChatsPanel(onUpdateHomepage: (newHomepage) {
             setState(() {
-              centerPanelKey.currentState?.updateHomepage(newHomepage);
+              centerPanelKey.currentState?.updateHomepage("chat");
             });
           }),
-          CenterPanel(key: centerPanelKey, homepage: 'chat'),
+          CenterPanel(key: centerPanelKey, homepage: homepage),
           RightSidebar(
             isRightSidebarVisible: false,
             closeSidebar: closeRightSidebar,

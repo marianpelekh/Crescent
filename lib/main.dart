@@ -126,7 +126,9 @@ class WebSocketService {
       final decoded = jsonDecode(event);
       return decoded['type'] == 'getmessages';
     });
-    print(data);
+    if (kDebugMode) {
+      print(data);
+    }
 
 return data;
     // final response = jsonEncode(data);
@@ -143,27 +145,26 @@ return data;
         print("Chats fetcher added to sink.");
       }
 
-      try {
-        final message = await broadcastStream.firstWhere((message) {
-          final data = jsonDecode(message);
-          return data['type'] == 'chatList';
-        });
+            try {
+              final message = await broadcastStream.firstWhere((message) {
+                final data = jsonDecode(message);
+                return data['type'] == 'chatList';
+              });
 
-        final data = jsonDecode(message);
-        final List<dynamic> decodedContent = data['content'];
+              final data = jsonDecode(message);
+              final List<dynamic> decodedContent = data['content'];
 
-        // Генерація списку ChatTile
-        List<ChatTile> chats = decodedContent.map((chat) {
-          final chatData = jsonDecode(chat['content']);
-          return ChatTile(
-            imageName: '../assets/avatar.png',
-            name: chatData['username'],
-            message: 'Text chat',
-            chatId: chatData['id'],
-            usId: chatData['usId'],
-          );
-        }).toList();
-
+              // Генерація списку ChatTile
+              List<ChatTile> chats = decodedContent.map((chat) {
+                final chatData = jsonDecode(chat['content']);
+                return ChatTile(
+                  imageName: '../assets/avatar.png',
+                  name: chatData['username'],
+                  message: 'Text chat',
+                  chatId: chatData['id'],
+                  usId: chatData['usId'],
+                );
+              }).toList();
         return chats;
       } catch (e) {
         if (kDebugMode) {
