@@ -154,7 +154,6 @@ return data;
               final data = jsonDecode(message);
               final List<dynamic> decodedContent = data['content'];
 
-              // Генерація списку ChatTile
               List<ChatTile> chats = decodedContent.map((chat) {
                 final chatData = jsonDecode(chat['content']);
                 return ChatTile(

@@ -86,11 +86,11 @@ class MainPageState extends State<MainPage> {
                       style: ElevatedButton.styleFrom(
                         padding: EdgeInsets.zero,
                         backgroundColor:
-                            Colors.transparent, // Забрати внутрішні відступи
+                            Colors.transparent,
                         minimumSize: const Size(
-                            40, 40), // Задати мінімальні розміри кнопки
-                        shape:
-                            const CircleBorder(), // Зробити фон кнопки прозорим
+                            40, 40), 
+                            shape:
+                            const CircleBorder(),
                         elevation: 0, // Без тіні
                       ),
                       child: const CircleAvatar(
@@ -107,12 +107,13 @@ class MainPageState extends State<MainPage> {
           ),
         ),
         body: Row(children: [
-          ChatsPanel(onUpdateHomepage: (newHomepage) {
+          ChatsPanel(onUpdateHomepage: (updateHomepage) {
+            print("Update homepage");
             setState(() {
-              centerPanelKey.currentState?.updateHomepage("chat");
+              centerPanelKey.currentState?.updateHomepage('chat');
             });
           }),
-          CenterPanel(key: centerPanelKey, homepage: homepage),
+          CenterPanel(key: centerPanelKey, homepage: "chat"),
           RightSidebar(
             isRightSidebarVisible: false,
             closeSidebar: closeRightSidebar,

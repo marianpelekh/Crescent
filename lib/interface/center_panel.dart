@@ -56,7 +56,7 @@ class CenterPanelState extends State<CenterPanel> {
               child: homepage == "home"
                   ? HomePage(adjustedFontSize: adjustedFontSize)
                   : const ChatPage(
-                      chatName: 'Choose chat to start...', recId: 1),
+                      chatName: 'Choose chat to start...', recId: 2),
             ),
           );
         },

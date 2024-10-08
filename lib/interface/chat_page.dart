@@ -3,8 +3,10 @@ part of '../main.dart';
 class ChatPage extends StatefulWidget {
   final String chatName;
   final int recId;
+  final Function(String)? homepage;
 
-  const ChatPage({super.key, required this.chatName, required this.recId});
+  const ChatPage(
+      {super.key, required this.chatName, required this.recId, this.homepage});
 
   @override
   ChatPageState createState() => ChatPageState();
@@ -52,6 +54,9 @@ class ChatPageState extends State<ChatPage> {
     final prefs = await SharedPreferences.getInstance();
     int? userId = prefs.getInt('userId');
     if (userId != null) {
+      if (kDebugMode) {
+        print("Load initial messages");
+      }
       await reloadMessages(userId, widget.recId);
     } else {
       if (kDebugMode) {
@@ -66,6 +71,12 @@ class ChatPageState extends State<ChatPage> {
     }
 
     try {
+      _messages.clear();
+      setState(() {
+        if (widget.homepage != null) {
+          widget.homepage!('chat');
+        }
+      });
       if (mounted) {
         if (kDebugMode) {
           print("Mounted");
@@ -73,9 +84,6 @@ class ChatPageState extends State<ChatPage> {
 
         String messages = await _webSocketService.getMessages(userId, recId);
         var decodedMessages = jsonDecode(messages);
-        if (kDebugMode) {
-          print(decodedMessages);
-        }
 
         if (decodedMessages['content'] is List) {
           updateMessages(decodedMessages['content']);
@@ -89,6 +97,10 @@ class ChatPageState extends State<ChatPage> {
             print("Unexpected format of decodedMessages");
           }
         }
+      } else {
+        if (kDebugMode) {
+          print("Not mounted");
+        }
       }
     } catch (e) {
       if (kDebugMode) {
@@ -100,11 +112,12 @@ class ChatPageState extends State<ChatPage> {
   }
 
   void updateMessages(List<dynamic> messages) {
-    if (kDebugMode) {
-      print(messages);
-    } // Для перевірки типу
     setState(() {
       _messages.clear();
+      if (kDebugMode) {
+        print("_messages");
+        print(_messages);
+      }
       List<Map<String, dynamic>> mappedMessages = messages
           .map((message) => Map<String, dynamic>.from(message))
           .toList();
@@ -123,7 +136,7 @@ class ChatPageState extends State<ChatPage> {
             List<Map<String, dynamic>>.from(messagesContent);
 
         updateMessages(messages);
-      } else {
+      } else if (decodedMessage['type'] == 'sendtextmessage') {
         setState(() {
           _messages.add({
             'textcontent': decodedMessage['text'] ?? '',
@@ -209,6 +222,9 @@ class ChatPageState extends State<ChatPage> {
                       hintStyle: TextStyle(color: thirdMain),
                     ),
                     style: const TextStyle(color: textColorH),
+                    onSubmitted: (value) {
+                      _sendMessage();
+                    },
                   ),
                 ),
               ),
@@ -219,7 +235,7 @@ class ChatPageState extends State<ChatPage> {
               ),
             ],
           ),
-        ),
+        )
       ],
     );
   }
@@ -237,7 +253,6 @@ class ChatPageState extends State<ChatPage> {
           'sender': userId,
         });
         _messageController.clear();
-
       });
     } else {
       if (kDebugMode) {

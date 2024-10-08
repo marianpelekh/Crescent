@@ -11,3 +11,4 @@ const Color backgroundColor = Color.fromARGB(255, 42, 42, 42);
 const Color shadowColor = Color.fromARGB(100, 21, 21, 21);
 const Color errorColor = Color.fromARGB(255, 182, 64, 64);
 const String ipAddress = "ws://192.168.0.193:8081/ws";
+// const String ipAddress = "ws://21.21.21.121:8081/ws";
