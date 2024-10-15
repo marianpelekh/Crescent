@@ -3,10 +3,9 @@ part of '../main.dart';
 class ChatPage extends StatefulWidget {
   final String chatName;
   final int recId;
-  final Function(String)? homepage;
 
   const ChatPage(
-      {super.key, required this.chatName, required this.recId, this.homepage});
+      {super.key, required this.chatName, required this.recId});
 
   @override
   ChatPageState createState() => ChatPageState();
@@ -23,6 +22,7 @@ class ChatPageState extends State<ChatPage> {
     super.initState();
     _webSocketService = WebSocketService(ipAddress);
     if (kDebugMode) {
+      print(ipAddress);
       print("WebSocket in init state ChatPageState has been initialized.");
     }
 
@@ -40,7 +40,9 @@ class ChatPageState extends State<ChatPage> {
       }
     });
 
-    _loadInitialMessages();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadInitialMessages();
+    });
   }
 
   Future<void> _loadCurrentUserId() async {
@@ -53,76 +55,67 @@ class ChatPageState extends State<ChatPage> {
   void _loadInitialMessages() async {
     final prefs = await SharedPreferences.getInstance();
     int? userId = prefs.getInt('userId');
-    if (userId != null) {
-      if (kDebugMode) {
-        print("Load initial messages");
-      }
-      await reloadMessages(userId, widget.recId);
-    } else {
-      if (kDebugMode) {
-        print("User ID is null");
-      }
+    if (kDebugMode) {
+      print("Load initial messages");
     }
+    await reloadMessages(userId!, widget.recId);
   }
 
-  Future<void> reloadMessages(int userId, int recId) async {
-    if (kDebugMode) {
-      print("Trying to reload messages for Chat ID: $recId");
-    }
+    Future<void> reloadMessages(int userId, int recId) async {
+      if (kDebugMode) {
+        print("Trying to reload messages for Chat ID: $recId");
+      }
 
-    try {
-      _messages.clear();
-      setState(() {
-        if (widget.homepage != null) {
-          widget.homepage!('chat');
-        }
-      });
-      if (mounted) {
-        if (kDebugMode) {
-          print("Mounted");
-        }
+      try {
+        _messages.clear();
+        if (mounted) {
 
-        String messages = await _webSocketService.getMessages(userId, recId);
-        var decodedMessages = jsonDecode(messages);
+          String messages = await _webSocketService.getMessages(userId, recId);
+          var decodedMessages = jsonDecode(messages);
 
-        if (decodedMessages['content'] is List) {
-          updateMessages(decodedMessages['content']);
-        } else if (decodedMessages['content'] is Map) {
-          List<Map<String, dynamic>> messageList = [
-            Map<String, dynamic>.from(decodedMessages['content'])
-          ];
-          updateMessages(messageList);
+          if (decodedMessages['content'] is List) {
+            updateMessages(decodedMessages['content']);
+          } else if (decodedMessages['content'] is Map) {
+            List<Map<String, dynamic>> messageList = [
+              Map<String, dynamic>.from(decodedMessages['content'])
+            ];
+            updateMessages(messageList);
+          } else {
+            if (kDebugMode) {
+              print("Unexpected format of decodedMessages");
+            }
+          }
         } else {
+          
           if (kDebugMode) {
-            print("Unexpected format of decodedMessages");
+            print("Not mounted");
           }
         }
-      } else {
+      } catch (e) {
         if (kDebugMode) {
-          print("Not mounted");
+          print("Error loading messages: $e");
+        }
+        await Future.delayed(const Duration(seconds: 15));
+        if (mounted) {
+          reloadMessages(userId, recId);
         }
       }
-    } catch (e) {
-      if (kDebugMode) {
-        print("Error loading messages: $e");
-      }
-      await Future.delayed(const Duration(seconds: 15));
-      reloadMessages(userId, recId);
     }
-  }
 
   void updateMessages(List<dynamic> messages) {
-    setState(() {
-      _messages.clear();
-      if (kDebugMode) {
-        print("_messages");
-        print(_messages);
-      }
-      List<Map<String, dynamic>> mappedMessages = messages
-          .map((message) => Map<String, dynamic>.from(message))
-          .toList();
-      _messages.addAll(mappedMessages.reversed.toList());
-    });
+    if (mounted) {
+      setState(() {
+        _messages.clear();
+        if (kDebugMode) {
+          print("_messages");
+          print(_messages);
+        }
+        List<Map<String, dynamic>> mappedMessages = messages
+            .map((message) => Map<String, dynamic>.from(message))
+            .toList();
+        _messages.addAll(mappedMessages.reversed.toList());
+      });
+    }
   }
 
   void _handleIncomingMessage(String message) {

@@ -127,6 +127,9 @@ class AuthPageState extends State<AuthPage> {
                   labelText: 'Username',
                   border: OutlineInputBorder(),
                 ),
+                onSubmitted: (String value) {
+                  authorize();
+                },
               ),
               const SizedBox(height: 20),
               TextField(
@@ -139,6 +142,9 @@ class AuthPageState extends State<AuthPage> {
                   labelText: 'Password',
                   border: OutlineInputBorder(),
                 ),
+                onSubmitted: (String value) {
+                  authorize();
+                },
               ),
               const SizedBox(height: 20),
               SizedBox(

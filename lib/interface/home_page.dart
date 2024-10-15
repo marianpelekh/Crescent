@@ -1,9 +1,7 @@
 part of '../main.dart';
 
 class HomePage extends StatelessWidget {
-  final double adjustedFontSize;
-
-  const HomePage({super.key, required this.adjustedFontSize});
+  const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -27,14 +25,14 @@ class HomePage extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Expanded(
+                    const Expanded(
                       flex: 3,
                       child: Text(
-                        "Welcome to Crescent!\nThis is your new gaming communication app. We’re pleased that you chose us! Hope, you’ll get the best experience using our app.\nGood luck!",
+                        "Welcome to Crescent!\nThis is your new secured communication app. We’re pleased that you chose us! Hope, you’ll get the best experience using our app.\nGood luck!",
                         style: TextStyle(
                           fontFamily: 'Jomolhari',
                           height: 1.5,
-                          fontSize: adjustedFontSize,
+                          fontSize: textLarge,
                           color: textColorH,
                         ),
                         textAlign: TextAlign.left,
@@ -74,13 +72,12 @@ class HomePage extends StatelessWidget {
                                     shadowColor: Colors.transparent,
                                     padding: EdgeInsets.zero,
                                   ),
-                                  child: Center(
+                                  child: const Center(
                                     child: Text(
                                       "GET STARTED",
                                       style: TextStyle(
                                         color: textColorH,
                                         fontWeight: FontWeight.bold,
-                                        fontSize: adjustedFontSize,
                                       ),
                                       textAlign: TextAlign.center,
                                     ),
@@ -100,50 +97,50 @@ class HomePage extends StatelessWidget {
                   thickness: 2,
                 ),
                 const SizedBox(height: 30),
-                Center(
+                const Center(
                     child: Text(
                   "News",
                   style: TextStyle(
-                    fontSize: adjustedFontSize,
+                    fontSize: textLarge,
                     color: textColorH,
                   ),
                 )),
-                Text(
+                const Text(
                   "This is first title\n\n\n\n\n\n\n",
                   style: TextStyle(
                     fontFamily: 'Jomolhari',
                     height: 1.5,
-                    fontSize: adjustedFontSize,
+                    fontSize: textLarge,
                     color: textColorH,
                   ),
                   textAlign: TextAlign.left,
                 ),
-                Text(
+                const Text(
                   "This is second title\n\n\n\n\n\n\n",
                   style: TextStyle(
                     fontFamily: 'Jomolhari',
                     height: 1.5,
-                    fontSize: adjustedFontSize,
+                    fontSize: textLarge,
                     color: textColorH,
                   ),
                   textAlign: TextAlign.left,
                 ),
-                Text(
+                const Text(
                   "This is third title\n\n\n\n\n\n\n",
                   style: TextStyle(
                     fontFamily: 'Jomolhari',
                     height: 1.5,
-                    fontSize: adjustedFontSize,
+                    fontSize: textLarge,
                     color: textColorH,
                   ),
                   textAlign: TextAlign.left,
                 ),
-                Text(
+                const Text(
                   "This is fourth title\n\n\n\n\n\n\n",
                   style: TextStyle(
                     fontFamily: 'Jomolhari',
                     height: 1.5,
-                    fontSize: adjustedFontSize,
+                    fontSize: textLarge,
                     color: textColorH,
                   ),
                   textAlign: TextAlign.left,

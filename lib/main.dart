@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'dart:math';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -28,7 +27,12 @@ class CrescentApp extends StatelessWidget {
     return prefs.getBool('loggedIn') ?? false;
   }
 
-  Future<String?> _getUsername() async {
+  Future<int?> getUserId() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt('userId');
+  }
+
+  Future<String?> getUsername() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('username');
   }
@@ -39,15 +43,15 @@ class CrescentApp extends StatelessWidget {
       title: 'Crescent',
       theme: ThemeData(
         fontFamily: 'JosefinSans',
-        textTheme: TextTheme(
+        textTheme: const TextTheme(
           bodyLarge: TextStyle(
-            fontSize: _getFontSize(context, 75, 16.0, 26.0),
+            fontSize: textLarge,
           ),
           bodyMedium: TextStyle(
-            fontSize: _getFontSize(context, 75, 16.0, 26.0) * 0.7,
+            fontSize: textMedium,
           ),
           bodySmall: TextStyle(
-            fontSize: _getFontSize(context, 75, 16.0, 26.0) * 0.5,
+            fontSize: textSmall,
           ),
         ),
         colorScheme: ColorScheme.fromSeed(
@@ -66,7 +70,7 @@ class CrescentApp extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasData && snapshot.data == true) {
             return FutureBuilder<String?>(
-              future: _getUsername(),
+              future: getUsername(),
               builder: (context, usernameSnapshot) {
                 if (usernameSnapshot.connectionState ==
                     ConnectionState.waiting) {
@@ -91,103 +95,110 @@ class CrescentApp extends StatelessWidget {
       },
     );
   }
-
-  double _getFontSize(BuildContext context, double multiplier,
-      double minFontSize, double maxFontSize) {
-    final constraints = MediaQuery.of(context).size;
-    double fontSize = sqrt(constraints.height * constraints.width) / multiplier;
-    return fontSize.clamp(minFontSize, maxFontSize);
-  }
 }
-
 class WebSocketService {
   late WebSocketChannel channel;
   late final Stream<dynamic> broadcastStream;
 
   WebSocketService(String url) {
-    channel = WebSocketChannel.connect(Uri.parse(url));
-    broadcastStream = channel.stream.asBroadcastStream();
-    listenToMessages();
+    try {
+      channel = WebSocketChannel.connect(Uri.parse(url));
+      broadcastStream = channel.stream.asBroadcastStream();
+      listenToMessages();
+      if (kDebugMode) {
+        print("WebSocketService initialized with URL: $url");
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print("Error initializing WebSocket: $e");
+      }
+    }
   }
 
   Stream<dynamic> listenToMessages() {
     return broadcastStream;
   }
 
-  Future<String> getMessages(int user1Id, int user2id) async {
+  Future<String> getMessages(int user1Id, int user2Id) async {
     String message = jsonEncode(
-        {"type": "getmessages", 'sender': user1Id, 'receiver': user2id});
+        {"type": "getmessages", 'sender': user1Id, 'receiver': user2Id});
     if (kDebugMode) {
-      print(message);
+      print("Sending message to WebSocket: $message");
     }
-    channel.sink.add(message);
+    try {
+      channel.sink.add(message);
 
-    String data = await broadcastStream.firstWhere((event) {
-      final decoded = jsonDecode(event);
-      return decoded['type'] == 'getmessages';
-    });
-    if (kDebugMode) {
-      print(data);
+      String data = await broadcastStream.firstWhere((event) {
+        final decoded = jsonDecode(event);
+        return decoded['type'] == 'getmessages';
+      });
+
+      if (kDebugMode) {
+        print("Received messages data: $data");
+      }
+      return data;
+    } catch (e) {
+      if (kDebugMode) {
+        print("Error getting messages: $e");
+      }
+      return '';
     }
-
-return data;
-    // final response = jsonEncode(data);
-    // return response;
   }
 
   Future<List<ChatTile>> getChats() async {
     final prefs = await SharedPreferences.getInstance();
     int? userId = prefs.getInt("userId");
 
-    if (userId != null) {
+    if (userId == null) {
+      if (kDebugMode) {
+        print("UserId not found in SharedPreferences");
+      }
+      return [];
+    }
+
+    try {
       channel.sink.add(jsonEncode({'type': 'getChats', 'userId': userId}));
       if (kDebugMode) {
-        print("Chats fetcher added to sink.");
+        print("Requesting chats for userId: $userId");
       }
 
-            try {
-              final message = await broadcastStream.firstWhere((message) {
-                final data = jsonDecode(message);
-                return data['type'] == 'chatList';
-              });
+      final message = await broadcastStream.firstWhere((message) {
+        final data = jsonDecode(message);
+        return data['type'] == 'chatList';
+      });
 
-              final data = jsonDecode(message);
-              final List<dynamic> decodedContent = data['content'];
+      final data = jsonDecode(message);
+      final List<dynamic> decodedContent = data['content'];
 
-              List<ChatTile> chats = decodedContent.map((chat) {
-                final chatData = jsonDecode(chat['content']);
-                return ChatTile(
-                  imageName: '../assets/avatar.png',
-                  name: chatData['username'],
-                  message: 'Text chat',
-                  chatId: chatData['id'],
-                  usId: chatData['usId'],
-                );
-              }).toList();
-        return chats;
-      } catch (e) {
-        if (kDebugMode) {
-          print('Error fetching chats: $e');
-        }
-        return [];
+      List<ChatTile> chats = decodedContent.map((chat) {
+        final chatData = jsonDecode(chat['content']);
+        return ChatTile(
+          imageName: '../assets/avatar.png',
+          name: chatData['username'],
+          message: 'Text chat',
+          chatId: chatData['id'],
+          usId: chatData['usId'],
+        );
+      }).toList();
+
+      return chats;
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error fetching chats: $e');
       }
-    } else {
       return [];
     }
   }
 
   Future<String?> getImage(String imageName) async {
-    // Відправляємо запит на отримання зображення
-    channel.sink.add(jsonEncode({'type': 'getImage', 'imageName': imageName}));
-
     try {
-      // Очікуємо на відповідь від сервера, де буде URL зображення
+      channel.sink.add(jsonEncode({'type': 'getImage', 'imageName': imageName}));
+
       final response = await broadcastStream.firstWhere((message) {
         final data = jsonDecode(message);
         return data['type'] == 'getImage' && data['imageName'] == imageName;
       });
 
-      // Розбираємо відповідь
       final decodedData = jsonDecode(response);
       return decodedData['imageUrl'];
     } catch (e) {
@@ -198,7 +209,7 @@ return data;
     }
   }
 
-  Future<void> sendTextMessage(int userId, int chatId, String text) async {
+  Future<void> sendTextMessage(int userId, int recId, String text) async {
     String mediacontent = jsonEncode({
       'photo': null,
       'video': null,
@@ -208,7 +219,7 @@ return data;
     final message = {
       'type': 'sendtextmessage',
       'sender': userId,
-      'receiver': chatId,
+      'receiver': recId,
       'text': text,
       'media': mediacontent,
     };
@@ -217,10 +228,32 @@ return data;
   }
 
   void sendMessage(String message) {
-    channel.sink.add(message);
+    try {
+      channel.sink.add(message);
+      if (kDebugMode) {
+        print("Message sent: $message");
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print("Error sending message: $e");
+      }
+    }
   }
 
   void closeConnection() {
-    channel.sink.close();
+    try {
+      channel.sink.close();
+      if (kDebugMode) {
+        print("WebSocket connection closed.");
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print("Error closing WebSocket connection: $e");
+      }
+    }
+  }
+
+  bool isConnected() {
+    return channel.closeCode == null; // WebSocket не закритий
   }
 }

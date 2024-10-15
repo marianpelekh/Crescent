@@ -65,7 +65,6 @@ class ChatsPanelState extends State<ChatsPanel> {
                     children: snapshot.data!.map((chatTile) {
                   return GestureDetector(
                     onTap: () {
-                      //This is not working
                       if (kDebugMode) {
                         print('Tapped chat tile');
                       }
@@ -98,18 +97,18 @@ class ChatsPanelState extends State<ChatsPanel> {
               setState(() {});
             },
             child: Container(
-              width: 20, // Ширина для захоплення мишкою
+              width: 20,
               height: 50,
               decoration: const BoxDecoration(
-                color: Colors.transparent, // Прозорий фон для великої області
+                color: Colors.transparent,
               ),
               alignment: Alignment.center,
               child: Container(
-                width: 5, // Власне ширина смужки
+                width: 5,
                 height: 50,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
-                  color: textColorS, // Колір смужки
+                  color: textColorS,
                 ),
               ),
             ),
@@ -129,8 +128,14 @@ class ChatsPanelState extends State<ChatsPanel> {
         chatId: chat.chatId,
         usId: chat.usId,
         onTap: () {
-          print("ChatsPanelState updateHomepage call");
+          if (kDebugMode) {
+            print("ChatsPanelState updateHomepage call");
+          }
           widget.onUpdateHomepage('chat');
+          CrescentApp c = const CrescentApp();
+          Future<int?> userId = c.getUserId();
+          ChatPageState chatState = ChatPageState();
+          chatState.reloadMessages(userId as int, chat.usId);
         },
       );
     }).toList();
@@ -219,22 +224,15 @@ class ChatTileState extends State<ChatTile> {
               leading: CircleAvatar(
                 child: Text(widget.name[0]),
               ),
-              title:
-                  Text(widget.name, style: const TextStyle(color: textColorH)),
+              title: Text(widget.name,
+                  style:
+                      const TextStyle(color: textColorH, fontSize: textMedium)),
               subtitle: Text(
                 widget.message,
-                style: const TextStyle(color: textColorP),
+                style: const TextStyle(color: textColorP, fontSize: textSmall),
                 overflow: TextOverflow.ellipsis,
               ),
-              onTap: () async {
-                final prefs = await SharedPreferences.getInstance();
-                int? userId = prefs.getInt("userId");
-
-                if (userId != null) {
-                  ChatPageState chat = ChatPageState();
-                  chat.reloadMessages(userId, widget.usId);
-                }
-              });
+              onTap: widget.onTap);
         }
       },
     );

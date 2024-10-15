@@ -11,7 +11,8 @@ class MainPage extends StatefulWidget {
 }
 
 class MainPageState extends State<MainPage> {
-  final GlobalKey<CenterPanelState> centerPanelKey = GlobalKey<CenterPanelState>();
+  final GlobalKey<CenterPanelState> centerPanelKey =
+      GlobalKey<CenterPanelState>();
   bool isRightSidebarVisible = true;
   String homepage = "home";
 
@@ -24,7 +25,7 @@ class MainPageState extends State<MainPage> {
   Future<void> _logout() async {
     final prefs = await SharedPreferences.getInstance();
 
-//Дописати логіку видаення токена з пристрою користувача
+    //Дописати логіку видаення токена з пристрою користувача
     // late WebSocketChannel _channel;
     // _channel = IOWebSocketChannel.connect(ipAddress);
     // final logout_mess = jsonEncode({
@@ -44,9 +45,9 @@ class MainPageState extends State<MainPage> {
     }
   }
 
-  void updateHomepage(String newHomepage) {
+  void _updateHomepage(String newHomepage) {
     setState(() {
-      homepage = newHomepage; //Update homepage after tapping on chat
+      homepage = newHomepage;
     });
   }
 
@@ -61,7 +62,9 @@ class MainPageState extends State<MainPage> {
             backgroundColor: secondMain,
             title: GestureDetector(
               onTap: () {
-                updateHomepage("home");
+                setState(() {
+                  centerPanelKey.currentState?.updateHomepageCP('home');
+                });
               },
               child: SvgPicture.asset(
                 'assets/CrescentLongLogo.svg',
@@ -85,12 +88,9 @@ class MainPageState extends State<MainPage> {
                       onPressed: _logout,
                       style: ElevatedButton.styleFrom(
                         padding: EdgeInsets.zero,
-                        backgroundColor:
-                            Colors.transparent,
-                        minimumSize: const Size(
-                            40, 40), 
-                            shape:
-                            const CircleBorder(),
+                        backgroundColor: Colors.transparent,
+                        minimumSize: const Size(40, 40),
+                        shape: const CircleBorder(),
                         elevation: 0, // Без тіні
                       ),
                       child: const CircleAvatar(
@@ -108,12 +108,19 @@ class MainPageState extends State<MainPage> {
         ),
         body: Row(children: [
           ChatsPanel(onUpdateHomepage: (updateHomepage) {
-            print("Update homepage");
+            if (kDebugMode) {
+              print("Update homepage");
+            }
             setState(() {
-              centerPanelKey.currentState?.updateHomepage('chat');
+              centerPanelKey.currentState?.updateHomepageCP('chat');
             });
           }),
-          CenterPanel(key: centerPanelKey, homepage: "chat"),
+          CenterPanel(
+            key: centerPanelKey,
+            receiverName: "Choose a chat to start",
+            receiverId: 3,
+            homepage: "home",
+          ),
           RightSidebar(
             isRightSidebarVisible: false,
             closeSidebar: closeRightSidebar,
