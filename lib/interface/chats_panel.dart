@@ -50,7 +50,9 @@ class ChatsPanelState extends State<ChatsPanel> {
                 if (kDebugMode) {
                   print("Loading chats...");
                 }
-                return const Center(child: Text("Loading chats..."));
+                return const Center(
+                    child: Text("Loading chats...",
+                        style: TextStyle(color: textColorH)));
               } else if (snapshot.hasError) {
                 if (kDebugMode) {
                   print("Error loading chats...");
@@ -61,18 +63,13 @@ class ChatsPanelState extends State<ChatsPanel> {
                   print("Chats have been loaded...");
                   print(snapshot.data!);
                 }
-                return ListView(
-                    children: snapshot.data!.map((chatTile) {
-                  return GestureDetector(
-                    onTap: () {
-                      if (kDebugMode) {
-                        print('Tapped chat tile');
-                      }
-                      widget.onUpdateHomepage('chat');
-                    },
-                    child: chatTile,
+                if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                  return ListView(
+                    children: buildChatTiles(snapshot.data!),
                   );
-                }).toList());
+                } else {
+                  return const Center(child: Text('No chats available'));
+                }
               } else {
                 return const Center(child: Text('No chats available'));
               }
@@ -119,6 +116,10 @@ class ChatsPanelState extends State<ChatsPanel> {
   }
 
   List<Widget> buildChatTiles(List<ChatTile> chats) {
+    if (kDebugMode) {
+      print("buildChatTiles");
+      print(chats[0].usId);
+    }
     return chats.map((chat) {
       return ChatTile(
         key: ValueKey(chat.chatId),
@@ -127,15 +128,28 @@ class ChatsPanelState extends State<ChatsPanel> {
         message: chat.message,
         chatId: chat.chatId,
         usId: chat.usId,
-        onTap: () {
+        onTap: () async {
           if (kDebugMode) {
-            print("ChatsPanelState updateHomepage call");
+            print("on tap of chat tile");
+            print(chat.usId);
           }
-          widget.onUpdateHomepage('chat');
+
           CrescentApp c = const CrescentApp();
-          Future<int?> userId = c.getUserId();
-          ChatPageState chatState = ChatPageState();
-          chatState.reloadMessages(userId as int, chat.usId);
+
+          int? userId = await c.getUserId();
+
+          if (userId != null) {
+            widget.onUpdateHomepage('chat');
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    ChatPage(chatName: chat.name, chatId: chat.usId),
+              ),
+            );
+          } else {
+            print("Error: User ID is null");
+          }
         },
       );
     }).toList();

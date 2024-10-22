@@ -15,6 +15,7 @@ class MainPageState extends State<MainPage> {
       GlobalKey<CenterPanelState>();
   bool isRightSidebarVisible = true;
   String homepage = "home";
+  int _currentChatId = 0;
 
   void closeRightSidebar() {
     setState(() {
@@ -48,6 +49,12 @@ class MainPageState extends State<MainPage> {
   void _updateHomepage(String newHomepage) {
     setState(() {
       homepage = newHomepage;
+    });
+  }
+
+  void updateChat(int chatId) {
+    setState(() {
+      _currentChatId = chatId;
     });
   }
 
@@ -118,7 +125,7 @@ class MainPageState extends State<MainPage> {
           CenterPanel(
             key: centerPanelKey,
             receiverName: "Choose a chat to start",
-            receiverId: 3,
+            receiverId: _currentChatId,
             homepage: "home",
           ),
           RightSidebar(

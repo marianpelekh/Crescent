@@ -2,10 +2,9 @@ part of '../main.dart';
 
 class ChatPage extends StatefulWidget {
   final String chatName;
-  final int recId;
+  final int chatId;
 
-  const ChatPage(
-      {super.key, required this.chatName, required this.recId});
+  const ChatPage({super.key, required this.chatName, required this.chatId});
 
   @override
   ChatPageState createState() => ChatPageState();
@@ -14,6 +13,7 @@ class ChatPage extends StatefulWidget {
 class ChatPageState extends State<ChatPage> {
   final _messageController = TextEditingController();
   final List<Map<String, dynamic>> _messages = [];
+  final ScrollController _scrollController = ScrollController(); // Додаємо ScrollController
   late final WebSocketService _webSocketService;
   int? userId;
 
@@ -56,66 +56,70 @@ class ChatPageState extends State<ChatPage> {
     final prefs = await SharedPreferences.getInstance();
     int? userId = prefs.getInt('userId');
     if (kDebugMode) {
-      print("Load initial messages");
+      print("Load initial messages " + widget.chatId.toString());
     }
-    await reloadMessages(userId!, widget.recId);
+    await reloadMessages(userId!, widget.chatId);
+    _scrollToBottom(); // Прокручуємо вниз після завантаження повідомлень
   }
 
-    Future<void> reloadMessages(int userId, int recId) async {
+  Future<void> reloadMessages(int userId, int recId) async {
+    try {
       if (kDebugMode) {
-        print("Trying to reload messages for Chat ID: $recId");
+        print("Trying to reload messages for user $userId to Chat ID: $recId");
       }
+      _messages.clear();
+      if (mounted) {
+        String messages = await _webSocketService.getMessages(userId, recId);
+        var decodedMessages = jsonDecode(messages);
 
-      try {
-        _messages.clear();
-        if (mounted) {
-
-          String messages = await _webSocketService.getMessages(userId, recId);
-          var decodedMessages = jsonDecode(messages);
-
-          if (decodedMessages['content'] is List) {
-            updateMessages(decodedMessages['content']);
-          } else if (decodedMessages['content'] is Map) {
-            List<Map<String, dynamic>> messageList = [
-              Map<String, dynamic>.from(decodedMessages['content'])
-            ];
-            updateMessages(messageList);
-          } else {
-            if (kDebugMode) {
-              print("Unexpected format of decodedMessages");
-            }
-          }
+        if (decodedMessages['content'] is List) {
+          updateMessages(decodedMessages['content']);
+        } else if (decodedMessages['content'] is Map) {
+          List<Map<String, dynamic>> messageList = [
+            Map<String, dynamic>.from(decodedMessages['content'])
+          ];
+          updateMessages(messageList);
         } else {
-          
           if (kDebugMode) {
-            print("Not mounted");
+            print("Unexpected format of decodedMessages");
+            print(decodedMessages);
           }
         }
-      } catch (e) {
+        _scrollToBottom(); // Прокручуємо вниз після оновлення повідомлень
+      } else {
         if (kDebugMode) {
-          print("Error loading messages: $e");
+          print("Not mounted");
         }
-        await Future.delayed(const Duration(seconds: 15));
-        if (mounted) {
-          reloadMessages(userId, recId);
-        }
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print("Error loading messages: $e");
+      }
+      await Future.delayed(const Duration(seconds: 15));
+      if (mounted) {
+        await reloadMessages(userId, recId);
       }
     }
+  }
 
   void updateMessages(List<dynamic> messages) {
     if (mounted) {
       setState(() {
         _messages.clear();
-        if (kDebugMode) {
-          print("_messages");
-          print(_messages);
-        }
         List<Map<String, dynamic>> mappedMessages = messages
             .map((message) => Map<String, dynamic>.from(message))
             .toList();
         _messages.addAll(mappedMessages.reversed.toList());
       });
     }
+  }
+
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+      }
+    });
   }
 
   void _handleIncomingMessage(String message) {
@@ -135,6 +139,7 @@ class ChatPageState extends State<ChatPage> {
             'textcontent': decodedMessage['text'] ?? '',
             'sender': decodedMessage['sender'] ?? 0,
           });
+          _scrollToBottom(); // Прокручуємо вниз після отримання нового повідомлення
         });
       }
     } catch (e) {
@@ -150,18 +155,37 @@ class ChatPageState extends State<ChatPage> {
       children: [
         Container(
           padding: const EdgeInsets.all(8.0),
-          color: secondMain,
-          child: Text(
-            widget.chatName,
-            style: const TextStyle(
-              color: textColorH,
-              fontWeight: FontWeight.bold,
-            ),
+          color: fourthMain,
+          width: double.infinity,
+          child: Row(
+            children: [
+              if (widget.chatId != 0)
+                IconButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  icon: const Icon(
+                    Icons.arrow_back,
+                    color: textColorH,
+                  ),
+                ),
+              Expanded(
+                child: Text(
+                  widget.chatName,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: textColorH,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
         Expanded(
           child: ListView.builder(
             padding: const EdgeInsets.all(20),
+            controller: _scrollController, // Використовуємо ScrollController
             itemCount: _messages.length,
             itemBuilder: (context, index) {
               final messageData = _messages[index];
@@ -173,7 +197,7 @@ class ChatPageState extends State<ChatPage> {
                     ? Alignment.centerRight
                     : Alignment.centerLeft,
                 child: FractionallySizedBox(
-                  widthFactor: 0.7,
+                  widthFactor: 0.45,
                   child: Container(
                     padding: const EdgeInsets.all(10),
                     margin: const EdgeInsets.symmetric(vertical: 5),
@@ -190,6 +214,7 @@ class ChatPageState extends State<ChatPage> {
                       messageData['text'] ?? '',
                       style: TextStyle(
                         color: isCurrentUser ? textColorH : textColorH,
+                        fontSize: textSmall
                       ),
                     ),
                   ),
@@ -234,11 +259,11 @@ class ChatPageState extends State<ChatPage> {
   }
 
   void _sendMessage() async {
-    if (_messageController.text.isNotEmpty && widget.recId != 0) {
+    if (_messageController.text.isNotEmpty && widget.chatId != 0) {
       final prefs = await SharedPreferences.getInstance();
       int? userId = prefs.getInt('userId');
       await _webSocketService.sendTextMessage(
-          userId!, widget.recId, _messageController.text);
+          userId!, widget.chatId, _messageController.text);
 
       setState(() {
         _messages.add({
@@ -246,6 +271,7 @@ class ChatPageState extends State<ChatPage> {
           'sender': userId,
         });
         _messageController.clear();
+        _scrollToBottom();
       });
     } else {
       if (kDebugMode) {
@@ -258,6 +284,7 @@ class ChatPageState extends State<ChatPage> {
   @override
   void dispose() {
     _webSocketService.closeConnection();
+    _scrollController.dispose();
     super.dispose();
   }
 }

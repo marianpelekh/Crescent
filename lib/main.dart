@@ -122,9 +122,6 @@ class WebSocketService {
   Future<String> getMessages(int user1Id, int user2Id) async {
     String message = jsonEncode(
         {"type": "getmessages", 'sender': user1Id, 'receiver': user2Id});
-    if (kDebugMode) {
-      print("Sending message to WebSocket: $message");
-    }
     try {
       channel.sink.add(message);
 
@@ -132,10 +129,6 @@ class WebSocketService {
         final decoded = jsonDecode(event);
         return decoded['type'] == 'getmessages';
       });
-
-      if (kDebugMode) {
-        print("Received messages data: $data");
-      }
       return data;
     } catch (e) {
       if (kDebugMode) {
@@ -231,7 +224,7 @@ class WebSocketService {
     try {
       channel.sink.add(message);
       if (kDebugMode) {
-        print("Message sent: $message");
+        print("Message sent.");
       }
     } catch (e) {
       if (kDebugMode) {
@@ -254,6 +247,6 @@ class WebSocketService {
   }
 
   bool isConnected() {
-    return channel.closeCode == null; // WebSocket не закритий
+    return channel.closeCode == null;
   }
 }

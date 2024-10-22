@@ -55,7 +55,7 @@ class CenterPanelState extends State<CenterPanel> {
                     ? const HomePage()
                     : ChatPage(
                         chatName: widget.receiverName,
-                        recId: widget.receiverId,
+                        chatId: widget.receiverId,
                       ),
               ));
         },
