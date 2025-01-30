@@ -2,12 +2,14 @@ import QtQuick
 import QtQuick.Window
 import QtQuick.Layouts
 import QtQuick.Controls 2.15
+import Crescent.Theme 1.0
 
 
 ApplicationWindow {
     id: root
     visible: true
     title: "Crescent"
+    color: Theme.getColor("background")
     
     header: ToolBar {
         height: 40
@@ -17,6 +19,7 @@ ApplicationWindow {
         id: header
         contentItem: Rectangle {
             anchors.fill: parent
+            color: Theme.getColor("primary")
             RowLayout {
                 anchors.fill: parent
                 spacing: 10
