@@ -5,6 +5,7 @@
 #include <QQuickStyle>
 #include <qqml.h>
 
+#include "core/Theme.h"
 
 int main(int argc, char *argv[])
 {
@@ -12,6 +13,9 @@ int main(int argc, char *argv[])
 
     app.setOrganizationName("Crescent");
     app.setApplicationName("crescent");
+
+
+    qmlRegisterSingletonInstance("Crescent.Theme", 1, 0, "Theme", &Theme::instance());
 
     QQmlApplicationEngine engine;
 
