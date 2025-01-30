@@ -1,0 +1,17 @@
+{
+    "background": "#202020",
+    "surface": "#0f0f0f",
+    "surfaceVariant": "#141414",
+    "surfaceElevated": "#191919",
+    "border": "#323232",
+    "textPrimary": "#ffffff",
+    "textSecondary": "#f0f0f0",
+    "textDisabled": "#aaaaaa",
+    "shadow": "#111111",
+    "accent": "#b4245b",
+    "accentDark": "#70164f",
+    "messageSent": "#b4245b",
+    "messageReceived": "#696969",
+    "textOnMessageSent": "#ffffff",
+    "textOnMessageReceived": "#ffffff"
+}
