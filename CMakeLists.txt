@@ -1,12 +1,31 @@
-cmake_minimum_required(VERSION 3.21.1)
+cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
 
-project(Crescent VERSION 0.0.1)
+set(PROJECT_NAME Crescent)
 
-configure_file(CrescentConfig.h.in "${CMAKE_BINARY_DIR}/CrescentConfig.h")
-
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_BUILD_TYPE "Debug")
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_COMPILER "clang++")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
 
-#for multimedia Qt Multimedia and for location there is Qt Location
-find_package(Qt6 REQUIRED COMPONENTS Core)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOMOC ON)
+
+project(${PROJECT_NAME} VERSION 0.1 LANGUAGES CXX)
+
+find_package(Qt6 COMPONENTS Core Widgets Gui Qml Quick QuickControls2 REQUIRED)
+
+include_directories(src)
+include_directories(qml)
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
+add_executable(${PROJECT_NAME}
+    src/main.cpp 
+    qml/QmlResources.qrc 
+)
+
+
+target_link_libraries(${PROJECT_NAME} Qt6::Core Qt6::Widgets Qt6::Gui Qt6::Qml Qt6::Quick Qt6::QuickControls2)
 
