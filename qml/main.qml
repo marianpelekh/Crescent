@@ -39,4 +39,22 @@ ApplicationWindow {
 
     width: (Qt.platform.os === "android" || Qt.platform.os === "ios") ? Screen.width : Screen.width * 0.75
     height: (Qt.platform.os === "android" || Qt.platform.os === "ios") ? Screen.height : Screen.height * 0.75
+    
+    RowLayout {
+        anchors.fill: parent
+
+        ChatsList {
+            id: chatsList
+            Layout.fillHeight: true
+            Layout.preferredWidth: root.width * 0.25
+            onChatSelected: (chatId) => stackView.push("qrc:/qml/pages/ChatPage.qml", { chatId: chatId })
+        }
+
+        StackView {
+            id: stackView
+            initialItem: "qrc:/qml/pages/HomePage.qml"
+            Layout.fillHeight: true
+            Layout.fillWidth: true
+        }
+    }
 }
