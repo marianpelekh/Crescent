@@ -25,11 +25,12 @@ add_executable(${PROJECT_NAME}
     src/main.cpp 
     src/core/Theme.cpp
     qml/QmlResources.qrc 
+    resources/Resources.qrc 
 )
-
 
 target_link_libraries(${PROJECT_NAME} Qt6::Core Qt6::Widgets Qt6::Gui Qt6::Qml Qt6::Quick Qt6::QuickControls2)
 
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
     ${CMAKE_SOURCE_DIR}/resources/themes ${CMAKE_BINARY_DIR}/bin/themes)
+

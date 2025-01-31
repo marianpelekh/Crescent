@@ -4,6 +4,7 @@ import QtQuick.Layouts
 import QtQuick.Controls 2.15
 import Crescent.Theme 1.0
 
+import "components"
 
 ApplicationWindow {
     id: root
@@ -27,6 +28,7 @@ ApplicationWindow {
                 Image {
                     Layout.leftMargin: 10
                     Layout.rightMargin: 10
+                    source: "qrc:/logos/crescent_long.svg"
                     fillMode: Image.PreserveAspectFit
                     Layout.preferredWidth: 100
                     Layout.alignment: Qt.AlignLeft
