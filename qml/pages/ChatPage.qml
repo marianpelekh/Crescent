@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls 2.15
 import QtQuick.Layouts
+import "../components"
 
 Item {
     property string chatId
@@ -21,7 +22,7 @@ Item {
                 ListElement { sender: "You"; text: "Hi!" }
             }
 
-            delegate: MessageBubble {
+            delegate: Message {
                 sender: model.sender
                 text: model.text
             }

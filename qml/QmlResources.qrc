@@ -6,5 +6,6 @@
         <file>components/ChatsList.qml</file>
         <file>components/NewsCard.qml</file>
         <file>components/RoundedImage.qml</file>
+        <file>components/Message.qml</file>
     </qresource>
 </RCC>
