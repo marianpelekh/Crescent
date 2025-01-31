@@ -53,8 +53,7 @@ ApplicationWindow {
             StackView {
                 id: stackView
                 initialItem: "qrc:/qml/pages/HomePage.qml"
-                Layout.fillHeight: true
-                Layout.fillWidth: true
+                anchors.fill: parent
             }
         }
     }
