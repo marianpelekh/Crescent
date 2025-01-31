@@ -35,19 +35,27 @@ ApplicationWindow {
     }
     RowLayout {
         anchors.fill: parent
-
+        anchors.leftMargin: 10
+        anchors.rightMargin: 10
+        anchors.bottomMargin: 10
         ChatsList {
             id: chatsList
             Layout.fillHeight: true
             Layout.preferredWidth: root.width * 0.25
             onChatSelected: (chatId) => stackView.push("qrc:/qml/pages/ChatPage.qml", { chatId: chatId })
         }
-
-        StackView {
-            id: stackView
-            initialItem: "qrc:/qml/pages/HomePage.qml"
-            Layout.fillHeight: true
+        Rectangle {
             Layout.fillWidth: true
+            Layout.fillHeight: true
+            color: Theme.getColor("secondary")
+            bottomLeftRadius: 10 
+            bottomRightRadius: 10 
+            StackView {
+                id: stackView
+                initialItem: "qrc:/qml/pages/HomePage.qml"
+                Layout.fillHeight: true
+                Layout.fillWidth: true
+            }
         }
     }
 }
