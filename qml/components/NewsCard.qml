@@ -4,6 +4,11 @@ import QtQuick.Layouts
 import Crescent.Theme 1.0
 
 Rectangle {
+    id: root
+    
+    property string title
+    property string description
+
     width: parent.width
     height: 120
     color: "transparent"
@@ -13,11 +18,13 @@ Rectangle {
         anchors.fill: parent
         spacing: 10 
 
-        Image {
+        RoundedImage {
             width: 210
             height: 120
-            source: "qrc:/images/base_image.png"
-            fillMode: Image.PreserveAspectCrop
+            source: "qrc:/images/noimage.png"
+            fillMode: Image.PreserveAspectFit
+            radius: 10
+            mipmap: true
         }
 
         Column {
@@ -25,14 +32,14 @@ Rectangle {
             anchors.verticalCenter: parent.verticalCenter
 
             Text {
-                text: "Patch 0.1:Alpha"
+                text: root.title
                 font.bold: true
                 font.pixelSize: 18
                 color: Theme.getColor("textPrimary")
             }
 
             Text {
-                text: "First patch of Crescent. Stay tuned."
+                text: root.description
                 font.pixelSize: 14
                 color: Theme.getColor("textSecondary")
                 wrapMode: Text.Wrap
