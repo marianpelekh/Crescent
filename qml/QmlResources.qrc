@@ -1,5 +1,9 @@
 <RCC>
-    <qresource prefix="Qml/">
+    <qresource prefix="qml/">
         <file>main.qml</file>
+        <file>pages/HomePage.qml</file>
+        <file>pages/ChatPage.qml</file>
+        <file>components/ChatsList.qml</file>
+        <file>components/NewsCard.qml</file>
     </qresource>
 </RCC>
