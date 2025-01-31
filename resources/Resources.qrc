@@ -1,0 +1,23 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icons/black_complete_mark.svg</file>
+        <file>icons/cross.svg</file>
+        <file>icons/exit.svg</file>
+        <file>icons/info.svg</file>
+        <file>icons/menu.svg</file>
+        <file>icons/microphone_off.svg</file>
+        <file>icons/microphone_on.svg</file>
+        <file>icons/search.svg</file>
+        <file>icons/settings.svg</file>
+        <file>icons/speaker_off.svg</file>
+        <file>icons/speaker_on.svg</file>
+        <file>icons/white_complete_mark.svg</file>
+        <file>logos/app_image.svg</file>
+        <file>logos/crescent_long.svg</file>
+        <file>logos/crescent_short.svg</file>
+        <file>themes/default.json</file>
+    </qresource>
+
+    <qresource prefix="/translations">
+    </qresource>
+</RCC>
