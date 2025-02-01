@@ -4,6 +4,7 @@
     "secondary": "#141414",
     "tertiary": "#191919",
     "border": "#323232",
+    "lightPrimary": "#ffffff",
     "textPrimary": "#ffffff",
     "textSecondary": "#f0f0f0",
     "textDisabled": "#aaaaaa",
