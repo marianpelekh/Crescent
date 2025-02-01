@@ -6,6 +6,7 @@
 #include <qqml.h>
 
 #include "core/Theme.h"
+#include "models/MessageModel.h"
 
 int main(int argc, char *argv[])
 {
@@ -15,8 +16,12 @@ int main(int argc, char *argv[])
     app.setApplicationName("crescent");
 
     qmlRegisterSingletonInstance("Crescent.Theme", 1, 0, "Theme", &Theme::instance());
+    qmlRegisterType<MessageModel>("Crescent.Models", 1, 0, "MessageModel");
 
     QQmlApplicationEngine engine;
+
+    MessageModel messageModel;
+    engine.rootContext()->setContextProperty("messageModel", &messageModel);
 
     const QUrl url(QStringLiteral("qrc:/qml/main.qml"));
 
