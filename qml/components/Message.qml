@@ -1,27 +1,38 @@
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Layouts
 import Crescent.Theme
 
-Rectangle {
+Item {
     id: root 
 
     property string sender
     property string text
-    
-    width: 200
-    height: messageText.height + 10
-    radius: 10
-    color: Theme.getColor("messageSent")
 
-    Column {
-        anchors.verticalCenter: root.verticalCenter
+    width: parent.width
 
-        Text {
-        id: messageText
-        text: root.text
-        color: Theme.getColor("textOnMessageSent")
-        font.pixelSize: 14
+    RowLayout {
+        width: parent.width
+        spacing: 10
+        anchors.right: root.right
+        anchors.left: root.left
+        Rectangle {
+            width: Math.min(messageText.implicitWidth + 20, parent.width * 0.75)
+            height: messageText.implicitHeight + 10
+            radius: 10
+            color: sender === "You" ? Theme.getColor("messageSent") : Theme.getColor("messageReceived")
+
+            Layout.alignment: sender === "You" ? Qt.AlignRight : Qt.AlignLeft
+            Text {
+                id: messageText
+                text: root.text
+                font.pixelSize: 14
+                anchors.centerIn: parent
+                color: sender === "You" ? Theme.getColor("textOnMessageSent") : Theme.getColor("textOnMessageReceived")
+                anchors.margins: 5
+                wrapMode: Text.Wrap
+                width: parent.width - 10
+            }
+        }
     }
 }
-}
-
