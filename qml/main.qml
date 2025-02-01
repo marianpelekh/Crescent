@@ -55,6 +55,42 @@ ApplicationWindow {
                 id: stackView
                 initialItem: "qrc:/qml/pages/HomePage.qml"
                 anchors.fill: parent
+                pushEnter: Transition {
+                    NumberAnimation {
+                        property: "opacity"
+                        from: 0
+                        to: 1
+                        duration: 300
+                        easing.type: Easing.InOutQuad
+                    }
+                }
+                pushExit: Transition {
+                    NumberAnimation {
+                        property: "opacity"
+                        from: 1
+                        to: 0 
+                        duration: 300
+                        easing.type: Easing.InOutQuad
+                    }
+                }
+                popEnter: Transition {
+                    PropertyAnimation {
+                        property: "opacity"
+                        from: 0
+                        to: 1
+                        duration: 300
+                        easing.type: Easing.InOutQuad
+                    }
+                }
+                popExit: Transition {
+                    PropertyAnimation {
+                        property: "opacity"
+                        from: 1
+                        to: 0
+                        duration: 300
+                        easing.type: Easing.InOutQuad
+                    }
+                }
             }
         }
     }
