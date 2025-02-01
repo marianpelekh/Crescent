@@ -8,9 +8,9 @@ ListView {
     signal chatSelected(string chatId, string chatName)
 
     model: ListModel {
-        ListElement { chatId: "1"; name: "Harry"; lastMessage: "Hello!" }
-        ListElement { chatId: "2"; name: "Tom"; lastMessage: "Check this out!" }
-        ListElement { chatId: "3"; name: "Emma"; lastMessage: "How are you doing?" }
+        ListElement { chatId: "1"; chatName: "Harry"; lastMessage: "Hello!" }
+        ListElement { chatId: "2"; chatName: "Tom"; lastMessage: "Check this out!" }
+        ListElement { chatId: "3"; chatName: "Emma"; lastMessage: "How are you doing?" }
     }
 
     property string activeChatId: ""
@@ -31,8 +31,9 @@ ListView {
 
             Rectangle {
                 anchors.bottom: parent.bottom
-                height: 2
+                height: 3
                 width: parent.width
+                radius: 2
                 color: listView.activeChatId === model.chatId 
                 ? Theme.getColor("lightPrimary") 
                 : delegateItem.down 
@@ -45,12 +46,12 @@ ListView {
 
         contentItem: RowLayout {
             spacing: 10
-
-
-
+ 
             Rectangle {
                 width: 50
                 height: 50
+                border.width: 2 
+                border.color: Theme.getColor("lightPrimary")
                 radius: width / 2
                 clip: true
 
@@ -74,8 +75,9 @@ ListView {
                 Layout.fillWidth: true
 
                 Label {
-                    text: model.name
+                    text: model.chatName
                     font.bold: true
+                    font.pixelSize: 14
                     color: Theme.getColor("textPrimary")
                 }
 
@@ -91,7 +93,7 @@ ListView {
 
         onClicked: {
             listView.activeChatId = model.chatId;
-            chatSelected(model.chatId, model.name);
+            chatSelected(model.chatId, model.chatName);
         }
     }
 }

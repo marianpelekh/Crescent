@@ -42,7 +42,7 @@ ApplicationWindow {
             id: chatsList
             Layout.fillHeight: true
             Layout.preferredWidth: root.width * 0.25
-            onChatSelected: (chatId) => stackView.push("qrc:/qml/pages/ChatPage.qml", { chatId: chatId })
+            onChatSelected: (chatId, chatName) => stackView.push("qrc:/qml/pages/ChatPage.qml", { chatId: chatId, chatName: chatName })
         }
         Rectangle {
             Layout.fillWidth: true
@@ -50,6 +50,7 @@ ApplicationWindow {
             color: Theme.getColor("secondary")
             bottomLeftRadius: 10 
             bottomRightRadius: 10 
+            clip: true
             StackView {
                 id: stackView
                 initialItem: "qrc:/qml/pages/HomePage.qml"
