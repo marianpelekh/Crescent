@@ -10,19 +10,24 @@ Item {
     property string text
 
     width: parent.width
+    height: message.height + 10 
 
     RowLayout {
-        width: parent.width
+        width: parent.width 
         spacing: 10
         anchors.right: root.right
         anchors.left: root.left
         Rectangle {
-            width: Math.min(messageText.implicitWidth + 20, parent.width * 0.75)
-            height: messageText.implicitHeight + 10
+            id: message
+            Layout.preferredWidth: Math.min(messageText.implicitWidth + 20, parent.width * 0.75)
+            Layout.preferredHeight: messageText.implicitHeight + 10
             radius: 10
-            color: sender === "You" ? Theme.getColor("messageSent") : Theme.getColor("messageReceived")
+            bottomLeftRadius: sender === "You" ? 10 : 0 
+            bottomRightRadius: sender === "You" ? 0 : 10
 
+            color: sender === "You" ? Theme.getColor("messageSent") : Theme.getColor("messageReceived")
             Layout.alignment: sender === "You" ? Qt.AlignRight : Qt.AlignLeft
+            
             Text {
                 id: messageText
                 text: root.text
