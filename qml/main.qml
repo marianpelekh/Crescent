@@ -3,6 +3,7 @@ import QtQuick.Window
 import QtQuick.Layouts
 import QtQuick.Controls 2.15
 import Crescent.Theme
+import Crescent.Models
 
 import "components"
 
@@ -33,6 +34,11 @@ ApplicationWindow {
             }
         }
     }
+
+    MessageModel {
+        id: messageModel
+    }
+
     RowLayout {
         anchors.fill: parent
         anchors.leftMargin: 10
@@ -42,7 +48,11 @@ ApplicationWindow {
             id: chatsList
             Layout.fillHeight: true
             Layout.preferredWidth: root.width * 0.25
-            onChatSelected: (chatId, chatName) => stackView.push("qrc:/qml/pages/ChatPage.qml", { chatId: chatId, chatName: chatName })
+            onChatSelected: (chatId, chatName) => {
+                messageModel.chatId = chatId;
+                stackView.push("qrc:/qml/pages/ChatPage.qml", { chatId: chatId, chatName: chatName });
+
+            }
         }
         Rectangle {
             Layout.fillWidth: true

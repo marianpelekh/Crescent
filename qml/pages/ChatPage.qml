@@ -1,33 +1,39 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import Crescent.Theme
+import Crescent.Theme 1.0
+import Crescent.Models
 import "../components"
 
 
 Item {
     id: root 
 
-    property string chatId
+    property string chatId: "0"
     property string chatName: "Private chat"
 
-    function getMessagesForChat(id) {
-        var messages = {
-            "1": [
-                { sender: root.chatName, text: "Hello!" },
-                { sender: "You", text: "Hey there!" }
-            ],
-            "2": [
-                { sender: root.chatName, text: "How's it going?" },
-                { sender: "You", text: "All good, you?" }
-            ],
-            "3": [
-                { sender: root.chatName, text: "Ready for the meeting? We found new feature to be implemented into our project, hope you'll check it as soon as possible." },
-                { sender: "You", text: "Yes, let's start!" },
-                { sender: "You", text: "Okay, I'll start." }
-            ]
-        };
-        return messages[id] || [];
+    // function getMessagesForChat(id) {
+    //     var messages = {
+    //         "1": [
+    //             { sender: root.chatName, text: "Hello!" },
+    //             { sender: "You", text: "Hey there!" }
+    //         ],
+    //         "2": [
+    //             { sender: root.chatName, text: "How's it going?" },
+    //             { sender: "You", text: "All good, you?" }
+    //         ],
+    //         "3": [
+    //             { sender: root.chatName, text: "Ready for the meeting? We found new feature to be implemented into our project, hope you'll check it as soon as possible." },
+    //             { sender: "You", text: "Yes, let's start!" },
+    //             { sender: "You", text: "Okay, I'll start." }
+    //         ]
+    //     };
+    //     return messages[id] || [];
+    // }
+
+    MessageModel {
+        id: messageModel
+        chatId: root.chatId
     }
 
     ColumnLayout {
@@ -48,7 +54,7 @@ Item {
             }
         }
 
-        ListView {
+       ListView {
             id: messageList
             Layout.margins: 10
             Layout.fillHeight: true
@@ -60,12 +66,6 @@ Item {
                 text: model.text
             }
 
-            Component.onCompleted: {
-                var msgs = getMessagesForChat(root.chatId);
-                for (var i = 0; i < msgs.length; i++) {
-                    model.append(msgs[i]);
-                }
-            }
             onModelChanged: positionViewAtEnd()
         }
 
