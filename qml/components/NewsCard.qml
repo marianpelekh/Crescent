@@ -21,7 +21,7 @@ Rectangle {
         RoundedImage {
             width: 210
             height: 120
-            source: "qrc:/images/noimage.png"
+            source: "qrc:/images/common.png"
             fillMode: Image.PreserveAspectFit
             radius: 10
             mipmap: true
