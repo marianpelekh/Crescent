@@ -16,14 +16,14 @@ class MessageModel : public QAbstractListModel
         Q_PROPERTY(QString chatId READ chatId WRITE setChatId NOTIFY chatIdChanged)
 
     public:
-        enum Role {
+        enum Role : int {
             SenderRole = Qt::UserRole + 1,
             TextRole
         };
 
         explicit MessageModel(QObject *parent = nullptr);
 
-        void addMessage(const QString &sender, const QString &text);
+        Q_INVOKABLE void addMessage(const QString &sender, const QString &text);
         void loadMessagesForChat(const QString &chatId);
 
         int rowCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -37,6 +37,7 @@ class MessageModel : public QAbstractListModel
         void chatIdChanged();
 
     private:
+        QHash<QString, QList<Message>> m_chatMessages;
         QList<Message> m_messages;
         QString m_chatId;
 };

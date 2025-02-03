@@ -4,27 +4,37 @@ MessageModel::MessageModel(QObject *parent) : QAbstractListModel(parent) {}
 
 void MessageModel::addMessage(const QString &sender, const QString &text)
 {
+    if (m_chatId.isEmpty())
+        return;
+
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
     m_messages.append({sender, text});
+    m_chatMessages[m_chatId] = m_messages;
     endInsertRows();
 }
-
 void MessageModel::loadMessagesForChat(const QString &chatId)
 {
     beginResetModel();
-    m_messages.clear();
-
-    // write a real one function when server will give responses
-    if (chatId == "1") {
-        m_messages.emplace_back(Message{"Alice", "Hello!"});
-        m_messages.emplace_back(Message{"You", "Hey there!"});
-    } else if (chatId == "2") {
-        m_messages.emplace_back(Message{"Bob", "How's it going?"});
-        m_messages.emplace_back(Message{"You", "All good, you?"});
-    }
-
+    m_messages = m_chatMessages.value(chatId, {}); // Завантажуємо історію чату
+    m_chatId = chatId;
     endResetModel();
 }
+// void MessageModel::loadMessagesForChat(const QString &chatId)
+// {
+//     beginResetModel();
+//     m_messages.clear();
+//
+//     // write a real one function when server will give responses
+//     if (chatId == "1") {
+//         m_messages.emplace_back(Message{"Alice", "Hello!"});
+//         m_messages.emplace_back(Message{"You", "Hey there!"});
+//     } else if (chatId == "2") {
+//         m_messages.emplace_back(Message{"Bob", "How's it going?"});
+//         m_messages.emplace_back(Message{"You", "All good, you?"});
+//     }
+//
+//     endResetModel();
+// }
 
 int MessageModel::rowCount(const QModelIndex &parent) const
 {
