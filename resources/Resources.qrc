@@ -18,6 +18,7 @@
         <file>logos/crescent_short.svg</file>
         <file>themes/default.json</file>
         <file>images/noimage.png</file>
+        <file>images/common.png</file>
     </qresource>
 
     <qresource prefix="/translations">
