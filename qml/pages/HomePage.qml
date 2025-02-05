@@ -20,6 +20,8 @@ Item {
             flickableDirection: Flickable.VerticalFlick
             boundsBehavior: Flickable.StopAtBounds
             clip: true
+            anchors.margins: 20
+            anchors.bottomMargin: 0
 
             ColumnLayout {
                 id: columnLayout
