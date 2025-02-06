@@ -31,6 +31,7 @@ Item {
                     Layout.fillWidth: true
                     Label {
                         text: "Welcome to Crescent!\n\nThis is alpha version of new\ncrossplatform secured messanger!\nGet a try!"
+                        color: Theme.getColor("textPrimary")
                         font.pixelSize: 24
                         font.bold: true
                         Layout.alignment: Qt.AlignHCenter
