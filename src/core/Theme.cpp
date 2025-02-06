@@ -6,7 +6,7 @@ Theme &Theme::instance()
     return instance;
 }
 
-Theme::Theme(QObject *parent) : QObject(parent) { loadFromFile("themes/default.json"); }
+Theme::Theme(QObject *parent) : QObject(parent) { loadFromFile("themes/light.json"); }
 
 void Theme::loadFromFile(const QString &path)
 {
