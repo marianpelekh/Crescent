@@ -1,0 +1,18 @@
+{
+    "background": "#f0f0f0",
+    "primary": "#ffffff",
+    "secondary": "#f7f7f7",
+    "tertiary": "#e8e8e8",
+    "border": "#d0d0d0",
+    "lightPrimary": "#000000",
+    "textPrimary": "#000000",
+    "textSecondary": "#333333",
+    "textDisabled": "#888888",
+    "shadow": "#cccccc",
+    "accent": "#b4245b",
+    "accentDark": "#70164f",
+    "messageSent": "#b4245b",
+    "messageReceived": "#696969",
+    "textOnMessageSent": "#ffffff",
+    "textOnMessageReceived": "#ffffff"
+}
