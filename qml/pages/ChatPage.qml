@@ -101,6 +101,14 @@ Item {
                         property string placeholder: "Type a message..."
                         onTextChanged: messagePlaceholder.visible = text.length === 0
 
+                        Keys.onReturnPressed: {
+                            if (text.length > 0) {
+                                console.log("Message sent:", text)
+                                messageModel.addMessage("You", text)
+                                text = "" 
+                            }
+                        }
+
                         Label {
                             id: messagePlaceholder
                             text: messageInput.placeholder
