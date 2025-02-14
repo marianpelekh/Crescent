@@ -45,16 +45,27 @@ ApplicationWindow {
         anchors.leftMargin: 10
         anchors.rightMargin: 10
         anchors.bottomMargin: 10
-        ChatsList {
-            id: chatsList
-            Layout.fillHeight: true
-            Layout.preferredWidth: root.width * 0.25
-            onChatSelected: (chatId, chatName) => {
-                messageModel.chatId = chatId;
-                stackView.push("qrc:/qml/pages/ChatPage.qml", { chatId: chatId, chatName: chatName });
+        Component {
+            id: chatsListComponent
 
+            ChatsList {
+                id: chatsList
+                onChatSelected: (chatId, chatName) => {
+                    messageModel.chatId = chatId;
+                    stackView.push("qrc:/qml/pages/ChatPage.qml", { chatId: chatId, chatName: chatName });
+
+                }
             }
         }
+
+        Loader {
+            id: chatsLoader
+            active: false
+            Layout.fillHeight: false
+            Layout.preferredWidth: 0
+            sourceComponent: chatsListComponent
+        } 
+
         Rectangle {
             Layout.fillWidth: true
             Layout.fillHeight: true
