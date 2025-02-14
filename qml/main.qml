@@ -16,6 +16,24 @@ ApplicationWindow {
     color: Theme.getColor("background")
 
     signal logged(login: string, password: string)
+
+    function redirectHome() {
+        stackView.push("qrc:/qml/pages/HomePage.qml")
+    }
+
+    onLogged: (login, password) => {
+        loginUser.receiveUserInfo(login, password);
+    }
+
+    Connections {
+        target: loginUser
+        function onLoginSucceed() {
+            redirectHome();
+            chatsLoader.active = true;
+            chatsLoader.Layout.fillHeight = true;
+            chatsLoader.Layout.preferredWidth = root.width * 0.25;
+        }
+    }
     header: Rectangle {
         id: header
         height: 50
