@@ -15,6 +15,7 @@ ApplicationWindow {
     title: "Crescent"
     color: Theme.getColor("background")
 
+    signal logged(login: string, password: string)
     header: Rectangle {
         id: header
         height: 50

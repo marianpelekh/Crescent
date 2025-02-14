@@ -60,7 +60,13 @@ Item {
                 }
                 Layout.preferredWidth: 120
                 Layout.preferredHeight: 30
+
+                onClicked: logged(loginField.text, passwordField.text)
             } 
+
+            Keys.onReturnPressed: {
+                logged(loginField.text, passwordField.text);
+            }
         }
 
         Rectangle {
