@@ -24,6 +24,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 add_executable(${PROJECT_NAME}
     src/main.cpp 
     src/core/Theme.cpp
+    src/core/LoginUser.cpp
+    src/models/MessageModel.cpp
     qml/QmlResources.qrc 
     resources/Resources.qrc 
 )

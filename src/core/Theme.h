@@ -6,11 +6,13 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QObject>
+#include <qqmlintegration.h>
 #include <unordered_map>
 
 class Theme : public QObject
 {
         Q_OBJECT
+        QML_ELEMENT
 
     public:
         static Theme &instance();

@@ -5,7 +5,9 @@
 #include <QQuickStyle>
 #include <qqml.h>
 
+#include "core/LoginUser.h"
 #include "core/Theme.h"
+#include "models/MessageModel.h"
 
 int main(int argc, char *argv[])
 {
@@ -15,10 +17,16 @@ int main(int argc, char *argv[])
     app.setApplicationName("crescent");
 
     qmlRegisterSingletonInstance("Crescent.Theme", 1, 0, "Theme", &Theme::instance());
+    qmlRegisterType<MessageModel>("Crescent.Models", 1, 0, "MessageModel");
 
     QQmlApplicationEngine engine;
 
-    const QUrl url(QStringLiteral("qrc:/Qml/main.qml"));
+    MessageModel messageModel;
+    engine.rootContext()->setContextProperty("messageModel", &messageModel);
+    LoginUser loginUser;
+    engine.rootContext()->setContextProperty("loginUser", &loginUser);
+
+    const QUrl url(QStringLiteral("qrc:/qml/main.qml"));
 
     QObject::connect(
         &engine, &QQmlApplicationEngine::objectCreated, &app,
