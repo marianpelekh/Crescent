@@ -1,7 +1,7 @@
 import QtQuick
 import QtQuick.Window
 import QtQuick.Layouts
-import QtQuick.Controls 2.15
+import QtQuick.Controls
 import Crescent.Theme
 import Crescent.Models
 
@@ -148,7 +148,7 @@ ApplicationWindow {
                 }
                 popEnter: Transition {
                     PropertyAnimation {
-                        property: "opacity"
+                       property: "opacity"
                         from: 0
                         to: 1
                         duration: 300
