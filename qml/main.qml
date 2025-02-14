@@ -15,6 +15,30 @@ ApplicationWindow {
     title: "Crescent"
     color: Theme.getColor("background")
 
+    signal logged(login: string, password: string)
+
+    function redirectHome() {
+        stackView.push("qrc:/qml/pages/HomePage.qml")
+    }
+
+    onLogged: (login, password) => {
+        loginUser.receiveUserInfo(login, password);
+    }
+
+    Connections {
+        target: loginUser
+        function onLoginSucceed() {
+            redirectHome();
+            chatsLoader.active = true;
+            chatsLoader.Layout.fillHeight = true;
+            chatsLoader.Layout.preferredWidth = root.width * 0.25;
+        }
+        function onLoginFailed() {
+            popup.popMessage = "Incorrect login or password. Try again.";
+            popup.open()
+        }
+    }
+
     header: Rectangle {
         id: header
         height: 50
@@ -39,21 +63,60 @@ ApplicationWindow {
         id: messageModel
     }
 
+    Popup {
+        id: popup
+        property alias popMessage: message.text
+
+        background: Rectangle {
+            implicitWidth: root.width
+            implicitHeight: 60
+            color: Theme.getColor("primary")
+        }
+        y: (root.height - 60)
+        modal: true
+        focus: true
+        closePolicy: Popup.CloseOnPressOutside
+        Text {
+            id: message
+            anchors.centerIn: parent
+            font.pointSize: 12
+            color: Theme.getColor("textPrimary")
+        }
+        onOpened: popupClose.start()
+    }
+
+    Timer {
+        id: popupClose
+        interval: 2000
+        onTriggered: popup.close()
+    }
+
     RowLayout {
         anchors.fill: parent
         anchors.leftMargin: 10
         anchors.rightMargin: 10
         anchors.bottomMargin: 10
-        ChatsList {
-            id: chatsList
-            Layout.fillHeight: true
-            Layout.preferredWidth: root.width * 0.25
-            onChatSelected: (chatId, chatName) => {
-                messageModel.chatId = chatId;
-                stackView.push("qrc:/qml/pages/ChatPage.qml", { chatId: chatId, chatName: chatName });
+        Component {
+            id: chatsListComponent
 
+            ChatsList {
+                id: chatsList
+                onChatSelected: (chatId, chatName) => {
+                    messageModel.chatId = chatId;
+                    stackView.push("qrc:/qml/pages/ChatPage.qml", { chatId: chatId, chatName: chatName });
+
+                }
             }
         }
+
+        Loader {
+            id: chatsLoader
+            active: false
+            Layout.fillHeight: false
+            Layout.preferredWidth: 0
+            sourceComponent: chatsListComponent
+        } 
+
         Rectangle {
             Layout.fillWidth: true
             Layout.fillHeight: true
@@ -63,7 +126,7 @@ ApplicationWindow {
             clip: true
             StackView {
                 id: stackView
-                initialItem: "qrc:/qml/pages/HomePage.qml"
+                initialItem: "qrc:/qml/pages/AuthPage.qml"
                 anchors.fill: parent
                 pushEnter: Transition {
                     NumberAnimation {

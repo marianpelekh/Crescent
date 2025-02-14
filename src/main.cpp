@@ -5,6 +5,7 @@
 #include <QQuickStyle>
 #include <qqml.h>
 
+#include "core/LoginUser.h"
 #include "core/Theme.h"
 #include "models/MessageModel.h"
 
@@ -22,6 +23,8 @@ int main(int argc, char *argv[])
 
     MessageModel messageModel;
     engine.rootContext()->setContextProperty("messageModel", &messageModel);
+    LoginUser loginUser;
+    engine.rootContext()->setContextProperty("loginUser", &loginUser);
 
     const QUrl url(QStringLiteral("qrc:/qml/main.qml"));
 
