@@ -82,6 +82,16 @@ Item {
                 fillMode: Image.PreserveAspectCrop
             }
 
+            Text {
+                anchors.centerIn: parent
+                color: Theme.getColor("textPrimary")
+                font.pixelSize: 24
+                text: qsTr("Crescent – a new secured messenger!")
+                wrapMode: Text.Wrap
+                horizontalAlignment: Text.AlignHCenter
+                width: parent.width * 0.8
+                z: 1
+            }
         }
     }
 }
