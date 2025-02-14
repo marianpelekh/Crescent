@@ -75,7 +75,7 @@ ApplicationWindow {
             clip: true
             StackView {
                 id: stackView
-                initialItem: "qrc:/qml/pages/HomePage.qml"
+                initialItem: "qrc:/qml/pages/AuthPage.qml"
                 anchors.fill: parent
                 pushEnter: Transition {
                     NumberAnimation {
