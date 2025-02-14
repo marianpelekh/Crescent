@@ -33,7 +33,12 @@ ApplicationWindow {
             chatsLoader.Layout.fillHeight = true;
             chatsLoader.Layout.preferredWidth = root.width * 0.25;
         }
+        function onLoginFailed() {
+            popup.popMessage = "Incorrect login or password. Try again.";
+            popup.open()
+        }
     }
+
     header: Rectangle {
         id: header
         height: 50
@@ -56,6 +61,34 @@ ApplicationWindow {
 
     MessageModel {
         id: messageModel
+    }
+
+    Popup {
+        id: popup
+        property alias popMessage: message.text
+
+        background: Rectangle {
+            implicitWidth: root.width
+            implicitHeight: 60
+            color: Theme.getColor("primary")
+        }
+        y: (root.height - 60)
+        modal: true
+        focus: true
+        closePolicy: Popup.CloseOnPressOutside
+        Text {
+            id: message
+            anchors.centerIn: parent
+            font.pointSize: 12
+            color: Theme.getColor("textPrimary")
+        }
+        onOpened: popupClose.start()
+    }
+
+    Timer {
+        id: popupClose
+        interval: 2000
+        onTriggered: popup.close()
     }
 
     RowLayout {
