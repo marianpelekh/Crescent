@@ -1,18 +1,39 @@
 {
-    "background": "#f0f0f0",
+    "logoHeader": "#000000",
+
+    "background": "#e0e0e0",
     "primary": "#ffffff",
     "secondary": "#f7f7f7",
     "tertiary": "#e8e8e8",
     "border": "#d0d0d0",
-    "lightPrimary": "#000000",
+    "highContrast": "#000000",
+
+    "chatsSeparator": "#cccccc",
+    "chatsSeparatorHovered": "#aaaaaa",
+    "chatsSeparatorDown": "#000000",
+    
     "textPrimary": "#000000",
     "textSecondary": "#333333",
     "textDisabled": "#888888",
+    "loginImageText": "#ffffff",
+    "accentButtonText": "#ffffff",
+
+     "checkMarkSent": "#ffffff",
+    "checkMarkReceived": "#303030",
+    "checkMarkSentBg": "#303030",
+    "checkMarkReceivedBg": "#ff96bf",
+
     "shadow": "#cccccc",
     "accent": "#b4245b",
     "accentDark": "#70164f",
-    "messageSent": "#b4245b",
-    "messageReceived": "#696969",
+    
+    "messageSentPrimary": "#c066d0",
+    "messageSentSecondary": "#7c48e6",
+    "messageReceived": "#d1d1d1",
+    
     "textOnMessageSent": "#ffffff",
-    "textOnMessageReceived": "#ffffff"
+    "textOnMessageReceived": "#000000",
+    "timeOnMessageSent": "#dddddd",
+    "timeOnMessageReceived": "#333333",
+    "errorBackground": "#770011"
 }

@@ -7,10 +7,11 @@ ListView {
     id: listView
     signal chatSelected(string chatId, string chatName)
 
+
     model: ListModel {
-        ListElement { chatId: "1"; chatName: "Harry"; lastMessage: "Hello!" }
-        ListElement { chatId: "2"; chatName: "Tom"; lastMessage: "Check this out!" }
-        ListElement { chatId: "3"; chatName: "Emma"; lastMessage: "How are you doing?" }
+        ListElement { chatId: "1"; chatName: "Harry";type: "group"; lastMessage: "Hello!" }
+        ListElement { chatId: "2"; chatName: "Group"; type: "group"; lastMessage: "Check this out!" }
+        ListElement { chatId: "3"; chatName: "Emma";  type: "chat"; lastMessage: "How are you doing?" }
     }
 
     property string activeChatId: ""
@@ -22,6 +23,8 @@ ListView {
         highlighted: listView.activeChatId === model.chatId
 
         background: Rectangle {
+            topLeftRadius: 8 
+            topRightRadius: 8
             color: delegateItem.down ? Theme.getColor("tertiary") :
             delegateItem.hovered ? Qt.rgba(Theme.getColor("tertiary").r,
             Theme.getColor("tertiary").g,
@@ -35,12 +38,12 @@ ListView {
                 width: parent.width
                 radius: 2
                 color: listView.activeChatId === model.chatId 
-                ? Theme.getColor("lightPrimary") 
+                ? Theme.getColor("chatsSeparatorDown") 
                 : delegateItem.down 
-                ? Theme.getColor("lightPrimary")
+                ? Theme.getColor("chatsSeparatorDown")
                 : delegateItem.hovered 
-                ? Theme.getColor("border") 
-                : Theme.getColor("primary")
+                ? Theme.getColor("chatsSeparatorHovered") 
+                : Theme.getColor("chatsSeparator")
             }
         }
 
@@ -51,7 +54,7 @@ ListView {
                 width: 50
                 height: 50
                 border.width: 2 
-                border.color: Theme.getColor("lightPrimary")
+                border.color: Theme.getColor("highContrast")
                 radius: width / 2
                 clip: true
 
