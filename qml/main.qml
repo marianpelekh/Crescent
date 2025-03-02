@@ -15,29 +15,31 @@ ApplicationWindow {
     title: "Crescent"
     color: Theme.getColor("background")
 
-    signal logged(login: string, password: string)
-
-    function redirectHome() {
-        stackView.push("qrc:/qml/pages/HomePage.qml")
+    FontLoader {
+        id: iconFont
+        source: "qrc:/icons/CrescentIcons.ttf"
     }
-
-    onLogged: (login, password) => {
-        loginUser.receiveUserInfo(login, password);
-    }
-
+    
     Connections {
-        target: loginUser
-        function onLoginSucceed() {
-            redirectHome();
+        target: networkManager
+
+        function onLoginSuccess(token) {
+            stackView.push("pages/HomePage.qml");
+            networkManager.fetchUserProfile();
             chatsLoader.active = true;
             chatsLoader.Layout.fillHeight = true;
             chatsLoader.Layout.preferredWidth = root.width * 0.25;
         }
-        function onLoginFailed() {
-            popup.popMessage = "Incorrect login or password. Try again.";
+
+        function onProfileReceived(username, avatarUrl) {
+            usernameText.text = username;
+        }
+
+        function onLoginFailed(error) {
+            popup.popMessage = error
             popup.open()
         }
-    }
+    }  
 
     header: Rectangle {
         id: header
@@ -48,13 +50,33 @@ ApplicationWindow {
             anchors.fill: parent
             spacing: 10
 
-            Image {
-                Layout.leftMargin: 10
-                Layout.rightMargin: 10
-                source: "qrc:/logos/crescent_long.svg"
-                fillMode: Image.PreserveAspectFit
-                Layout.preferredWidth: 150
-                Layout.alignment: Qt.AlignLeft
+            Text {
+                Layout.leftMargin: 10 
+                Layout.rightMargin: 10 
+                font.family: iconFont.name
+                text: "\ue90d" 
+                color: Theme.getColor("logoHeader") 
+                font.pixelSize: 36
+                renderType: Text.QtRendering
+                antialiasing: true
+                smooth: true
+                layer.enabled: true
+                layer.smooth: true
+            }
+
+            Text {
+                id: usernameText
+                Layout.leftMargin: 10 
+                Layout.rightMargin: 10 
+                text: ""//тут має бути отримане ім'я користувача 
+                color: Theme.getColor("textPrimary") 
+                font.pixelSize: 36
+                renderType: Text.QtRendering
+                antialiasing: true
+                smooth: true
+                layer.enabled: true
+                layer.smooth: true
+
             }
         }
     }
@@ -69,12 +91,10 @@ ApplicationWindow {
 
         background: Rectangle {
             implicitWidth: root.width
-            implicitHeight: 60
-            color: Theme.getColor("primary")
             implicitHeight: 40
             color: Theme.getColor("errorBackground")
         }
-        y: (root.height - 60)
+        y: (root.height - 95)
         modal: true
         focus: true
         closePolicy: Popup.CloseOnPressOutside
@@ -82,6 +102,7 @@ ApplicationWindow {
             id: message
             anchors.centerIn: parent
             font.pointSize: 12
+            wrapMode: Text.Wrap
             color: Theme.getColor("textPrimary")
         }
         onOpened: popupClose.start()
@@ -89,7 +110,7 @@ ApplicationWindow {
 
     Timer {
         id: popupClose
-        interval: 2000
+        interval: 4000
         onTriggered: popup.close()
     }
 
@@ -100,7 +121,6 @@ ApplicationWindow {
         anchors.bottomMargin: 10
         Component {
             id: chatsListComponent
-
             ChatsList {
                 id: chatsList
                 onChatSelected: (chatId, chatName) => {
@@ -108,7 +128,7 @@ ApplicationWindow {
                     stackView.push("qrc:/qml/pages/ChatPage.qml", { chatId: chatId, chatName: chatName });
 
                 }
-            }
+            } 
         }
 
         Loader {
@@ -118,7 +138,6 @@ ApplicationWindow {
             Layout.preferredWidth: 0
             sourceComponent: chatsListComponent
         } 
-
         Rectangle {
             Layout.fillWidth: true
             Layout.fillHeight: true
