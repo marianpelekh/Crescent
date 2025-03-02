@@ -86,10 +86,13 @@ Item {
                     }
                 }
 
+                onClicked: { 
+                    networkManager.loginUser(loginField.text, passwordField.text);
+                }
             } 
 
             Keys.onReturnPressed: {
-                logged(loginField.text, passwordField.text);
+                networkManager.loginUser(loginField.text, passwordField.text);
             }
         }
 

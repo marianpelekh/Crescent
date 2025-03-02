@@ -14,7 +14,7 @@ set(CMAKE_AUTOMOC ON)
 
 project(${PROJECT_NAME} VERSION 0.1 LANGUAGES CXX)
 
-find_package(Qt6 COMPONENTS Core Widgets Gui Qml Quick QuickControls2 REQUIRED)
+find_package(Qt6 COMPONENTS Core Widgets Gui Qml Quick QuickControls2 WebSockets REQUIRED)
 
 include_directories(src)
 include_directories(qml)
@@ -24,13 +24,14 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 add_executable(${PROJECT_NAME}
     src/main.cpp 
     src/core/Theme.cpp
-    src/core/LoginUser.cpp
+    # src/core/LoginUser.cpp
+    src/core/NetworkManager.cpp
     src/models/MessageModel.cpp
     qml/QmlResources.qrc 
     resources/Resources.qrc 
 )
 
-target_link_libraries(${PROJECT_NAME} Qt6::Core Qt6::Widgets Qt6::Gui Qt6::Qml Qt6::Quick Qt6::QuickControls2)
+target_link_libraries(${PROJECT_NAME} Qt6::Core Qt6::Widgets Qt6::Gui Qt6::Qml Qt6::Quick Qt6::QuickControls2 Qt6::WebSockets)
 
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
