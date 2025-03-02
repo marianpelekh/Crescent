@@ -71,6 +71,8 @@ ApplicationWindow {
             implicitWidth: root.width
             implicitHeight: 60
             color: Theme.getColor("primary")
+            implicitHeight: 40
+            color: Theme.getColor("errorBackground")
         }
         y: (root.height - 60)
         modal: true

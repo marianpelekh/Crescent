@@ -50,6 +50,8 @@ Item {
                 contentItem: Text {
                     text: qsTr("Enter")
                     color: Theme.getColor("textPrimary")
+                    font.bold: true
+                    color: Theme.getColor("accentButtonText")
                     font.pixelSize: 16
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
@@ -86,6 +88,9 @@ Item {
                 anchors.centerIn: parent
                 color: Theme.getColor("textPrimary")
                 font.pixelSize: 24
+                color: Theme.getColor("loginImageText")
+                font.pixelSize: 48
+                font.bold: true
                 text: qsTr("Crescent – a new secured messenger!")
                 wrapMode: Text.Wrap
                 horizontalAlignment: Text.AlignHCenter
