@@ -29,6 +29,7 @@ add_executable(${PROJECT_NAME}
     src/models/MessageModel.cpp
     qml/QmlResources.qrc 
     resources/Resources.qrc 
+    src/core/Log.h
 )
 
 target_link_libraries(${PROJECT_NAME} Qt6::Core Qt6::Widgets Qt6::Gui Qt6::Qml Qt6::Quick Qt6::QuickControls2 Qt6::WebSockets)
