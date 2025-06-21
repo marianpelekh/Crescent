@@ -6,27 +6,36 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QObject>
+#include <QVariantMap>
 #include <qqmlintegration.h>
 #include <unordered_map>
 
-class Theme : public QObject
-{
-        Q_OBJECT
-        QML_ELEMENT
+class Theme : public QObject {
+  Q_OBJECT
+  QML_ELEMENT
+  QML_SINGLETON
 
-    public:
-        static Theme &instance();
+  Q_PROPERTY(QVariantMap palette READ palette NOTIFY themeChanged)
 
-        Q_INVOKABLE QColor getColor(const QString &name) const;
-        void loadFromFile(const QString &path);
+public:
+  static Theme &instance();
 
-    signals:
-        void themeChanged();
+  explicit Theme(QObject *parent = nullptr);
 
-    private:
-        explicit Theme(QObject *parent = nullptr);
-        Theme(const Theme &) = delete;
-        Theme &operator=(const Theme &) = delete;
+  Q_INVOKABLE QColor getColor(const QString &name) const;
+  Q_INVOKABLE QStringList availableThemes();
+  Q_INVOKABLE void loadNamedTheme(const QString &name);
 
-        std::unordered_map<QString, QColor> colors;
+  QVariantMap palette() const;
+
+  void loadFromFile(const QString &path);
+
+signals:
+  void themeChanged();
+
+private:
+  Theme(const Theme &) = delete;
+  Theme &operator=(const Theme &) = delete;
+
+  std::unordered_map<QString, QColor> colors;
 };

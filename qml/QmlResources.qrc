@@ -1,12 +1,15 @@
 <RCC>
     <qresource prefix="qml/">
         <file>main.qml</file>
-        <file>pages/HomePage.qml</file>
-        <file>pages/ChatPage.qml</file>
-        <file>pages/AuthPage.qml</file>
+        <file>HomePage.qml</file>
+        <file>ChatPage.qml</file>
+        <file>AuthPage.qml</file>
         <file>components/ChatsList.qml</file>
         <file>components/NewsCard.qml</file>
         <file>components/RoundedImage.qml</file>
         <file>components/Message.qml</file>
+        <file>components/FormTextField.qml</file>
+        <file>components/CrescentMenu.qml</file>
+        <file>components/CrescentMenuItem.qml</file>
     </qresource>
 </RCC>
