@@ -4,12 +4,16 @@
         <file>logos/app_image.svg</file>
         <file>logos/crescent_long.svg</file>
         <file>logos/crescent_short.svg</file>
-        <file>themes/default.json</file>
         <file>images/noimage.png</file>
+        <file>images/base_avatar.png</file>
         <file>images/common.png</file>
         <file>images/login.png</file>
+        <file>themes/dark.json</file>
+        <file>themes/light.json</file>
+        <file>themes/ice.json</file>
+        <file>themes/paper.json</file>
+        <file>themes/acid.json</file>
+        <file>themes/earth.json</file>
     </qresource>
-
-    <qresource prefix="/translations">
-    </qresource>
+    <qresource prefix="/translations"></qresource>
 </RCC>
