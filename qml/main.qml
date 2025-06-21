@@ -171,7 +171,7 @@ ApplicationWindow {
 
                 popEnter: Transition {
                     PropertyAnimation {
-                        property: "opacity"
+                       property: "opacity"
                         from: 0
                         to: 1
                         duration: 300
