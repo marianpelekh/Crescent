@@ -44,5 +44,7 @@
     "timeOnMessageReceived": "#dddddd",
     "senderOnMessageSent": "#bababa",
     "senderOnMessageReceived": "#bababa",
-    "errorBackground": "#220001"
+    "errorBackground": "#220001",
+
+    "backgroundCover": "#80000000"
 }
