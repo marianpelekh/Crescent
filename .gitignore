@@ -1,3 +1,6 @@
 .cache
 build
 qmlls.ini.in
+build-android
+*.ini
+.directory
